@@ -2,9 +2,9 @@
 <html>
 <head>
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
-  <title>UCOS中的一些概念(1) | 简</title>
-  <meta name="keywords" content=" ucos , real-time system ">
-  <meta name="description" content="UCOS中的一些概念(1) | 简">
+  <title>Wireshark初探 | 简</title>
+  <meta name="keywords" content=" wireshark ">
+  <meta name="description" content="Wireshark初探 | 简">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="要了解什么是实时操作系统，它与非实时操作系统有什么区别，必须要知道如下这些概念。 Foreground&#x2F;Background System中断是操作系统中的重要概念，也是芯片设计中核心的东西。中断处理是由中断控制器产生中断信号，到达处理器后由处理器对其进行处理的过程，中断的特点是能够打断处理器的正常执行转而去执行更重要的中断处理程序。而这里的Forground则指代中断处理的过程，而Backgro">
 <meta property="og:type" content="article">
@@ -463,9 +463,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-UCOS中的一些概念" class="article article-type-post" itemscope itemprop="blogPost">
+        <article id="post-Wireshark初探" class="article article-type-post" itemscope itemprop="blogPost">
     
-        <h1 class="article-title">UCOS中的一些概念(1)</h1>
+        <h1 class="article-title">Wireshark初探</h1>
     
     <div class="article-meta">
         
@@ -473,16 +473,14 @@
         
         <span class="book">
             
-                <a  data-rel="System">System</a>
+                <a  data-rel="协议">协议</a>
             
         </span>
         
         
         <span class="tag">
             
-            <a class="color5">ucos</a>
-            
-            <a class="color2">real-time system</a>
+            <a class="color5">wireshark</a>
             
         </span>
         
@@ -498,7 +496,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Foreground-Background-System"><span class="toc-text">Foreground&#x2F;Background System</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#临界区（Critical-Region）"><span class="toc-text">临界区（Critical Region）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#资源"><span class="toc-text">资源</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#共享资源"><span class="toc-text">共享资源</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#任务"><span class="toc-text">任务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#不可抢占-可抢占内核"><span class="toc-text">不可抢占&#x2F;可抢占内核</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#可重入性"><span class="toc-text">可重入性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#优先级反转"><span class="toc-text">优先级反转</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基于优先级的调度"><span class="toc-text">基于优先级的调度</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#RMS-RMA-Rate-Monotonic-Scheduling-Rate-Monotonic-Algorithm"><span class="toc-text">RMS&#x2F;RMA(Rate Monotonic Scheduling&#x2F;Rate Monotonic Algorithm)</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Wireshark整体结构"><span class="toc-text">Wireshark整体结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Wireshark的初始化"><span class="toc-text">Wireshark的初始化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#WireTap模块初始化"><span class="toc-text">WireTap模块初始化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Epan的初始化"><span class="toc-text">Epan的初始化</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#基础服务初始化"><span class="toc-text">基础服务初始化</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#协议分析初始化"><span class="toc-text">协议分析初始化</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -514,53 +512,163 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>要了解什么是实时操作系统，它与非实时操作系统有什么区别，必须要知道如下这些概念。</p>
-<h2 id="Foreground-Background-System"><a href="#Foreground-Background-System" class="headerlink" title="Foreground/Background System"></a>Foreground/Background System</h2><p>中断是操作系统中的重要概念，也是芯片设计中核心的东西。中断处理是由中断控制器产生中断信号，到达处理器后由处理器对其进行处理的过程，中断的特点是能够打断处理器的正常执行转而去执行更重要的中断处理程序。而这里的Forground则指代中断处理的过程，而Background则指处理器正常运行的过程。如下图所示：</p>
-<p><img src="https://sosdream.github.io/pictures/ucos/fore_back.png" alt="Foreground/Background系统构成"></p>
-<h2 id="临界区（Critical-Region）"><a href="#临界区（Critical-Region）" class="headerlink" title="临界区（Critical Region）"></a>临界区（Critical Region）</h2><p>临界区代码不可被中断，因此在进入临界区之前必须关中断，执行结束后才能开中断</p>
-<h2 id="资源"><a href="#资源" class="headerlink" title="资源"></a>资源</h2><p>资源是指一切能被任务使用的东西，可以是I/O设备，打印机，键盘，显示器，或这是数组，变量等。</p>
-<h2 id="共享资源"><a href="#共享资源" class="headerlink" title="共享资源"></a>共享资源</h2><p>共享资源是指能被多个任务所使用的资源，通常任务对资源具有独占性，一经获取，就不能被另一个任务获取，直到资源被释放。</p>
-<h2 id="任务"><a href="#任务" class="headerlink" title="任务"></a>任务</h2><p>这里的任务就是指进程，UCOS中进程由五种状态：DORMANT，READY，RUNNING，WAITING，ISR</p>
-<p>DORMANt:这个状态指任务已经被放入内存，但还不可运行<br>READY:进程可运行，但还未被调度<br>RUNNING:进程正在运行<br>WAITING:进程因等待某个资源可用而进入此状态并让出处理器使用权<br>ISR:进程在执行时被中断则进入这个状态</p>
-<p>如下显示了进程状态变迁图</p>
-<p><img src="https://sosdream.github.io/pictures/ucos/process_trans.png" alt="进程变迁"></p>
-<h2 id="不可抢占-可抢占内核"><a href="#不可抢占-可抢占内核" class="headerlink" title="不可抢占/可抢占内核"></a>不可抢占/可抢占内核</h2><p>不可抢占内核是指进程执行过程中，除了能被中断程序中断外不可被任何更高优先级的进程剥夺处理器控制权。如下图演示</p>
-<p><img src="https://sosdream.github.io/pictures/ucos/non_preemptive.png" alt="不可剥夺内核"></p>
-<p>可抢占内核正好相反，低优先级的进程可以被高优先级的进程抢占处理器使用权。如下图</p>
-<p><img src="https://sosdream.github.io/pictures/ucos/preemptive.png" alt="可剥夺内核"></p>
-<h2 id="可重入性"><a href="#可重入性" class="headerlink" title="可重入性"></a>可重入性</h2><p>在程序设计中，大部分函数都会被不同对象在不同地方调用，特别是在多进程系统中，公共函数被不同进程所调用，要使得函数调用不会出现问题或其它意想不到的副作用，我们就必须要考虑函数的可重入性问题。如下例子可简单的说明这个问题。</p>
-<p>代码1:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">void strcpy(char *dst, char *src) &#123;</span><br><span class="line">	while (*dst++ &#x3D; *src++) &#123;</span><br><span class="line">		;</span><br><span class="line">	&#125;</span><br><span class="line">	*dst &#x3D; NULL;	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>代码2:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">int tmp &#x3D; 0;</span><br><span class="line">void swap(int *x, int *y) &#123;</span><br><span class="line">	tmp &#x3D; *x;</span><br><span class="line">	*x &#x3D; *y;</span><br><span class="line">	*y &#x3D; tmp;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>从以上两个代码片段可以看出，代码1是可重入的，代码2是不可重入的，它们唯一的区别就是一个指使用了栈中的资源，另一个使用了全局资源。因此，在代码设计中，要保证函数的可重入性，必须确保函数调用过程中不依赖全局资源，而只依赖栈中的资源。</p>
-<h2 id="优先级反转"><a href="#优先级反转" class="headerlink" title="优先级反转"></a>优先级反转</h2><p>优先级反转是指高优先级的进程等待被低优先级进程占有的资源而阻塞时，系统中出现优先级比低优先级进程高但比高优先级进程低的进程时，导致低优先级进程无法执行不能释放资源，令高优先级进程一直阻塞的现象。这种现象在实时系统中是比较常见的，通常通过如下两种方法解决。</p>
-<ol>
-<li>优先级继承：低优先级的进程占用资源，导致高优先级进程阻塞时，低优先级进程的优先级调整为高优先级进程的优先级</li>
-<li>优先级天花板算法：进程在获得某种资源时，将自身优先级调整为可能会等待该资源的进程中优先级最高的进程的优先级</li>
-</ol>
-<h2 id="基于优先级的调度"><a href="#基于优先级的调度" class="headerlink" title="基于优先级的调度"></a>基于优先级的调度</h2><p>如果有大量实时任务或规定了严格的完成时间点的任务，怎样才能完美的安排任务优先级满足任务的完成要求？RMA(Rate Monotonic Algorithm)就是其中的能做到这点的一项技术。</p>
-<p>许多的实时系统使用了可抢占的多任务环境。而其中的每个任务则被赋予了各自的相对优先级，系统每次都选择优先级最高的就绪任务进行调度。</p>
-<p>而调度算法在这里面扮演的就是选择赋予任务优先级的角色。依据优先级被设置的方式可将其分为三种：静态优先级，动态优先级，混合优先级。静态优先级的调度算法在任务创建时就赋予一个固定的优先级，并一直保持到任务完成。动态优先级算法会根据任务执行时的状态变化动态地调整其优先级。混合优先级算法包含了静态和动态的特征。毫无疑问，静态优先级算法比起动态优先级算法是要更简单的，因为其不用在执行过程中去根据条件计算优先级。</p>
-<p>为展示调度算法的重要性，这儿举一个例子。在一个系统中有两个任务，分别为Task1和Task2。假设两个任务都是周期性执行的任务，执行周期分别为T1和T2,同时要求在任务必须在下一个周期开始前执行结束。T1=50ms,最坏情形下Task1需要25ms完成，设为C1=25ms;T2=100ms,C2=40ms。$U_i=\frac{C_i}{T_i}$,$U_i$为$Task_i$的CPU利用率。因此易得$U_1=50%, U_2=40%$,这意味着总的CPU利用率$U=U_1+U_2=90%$,这样在逻辑上似乎是合理的，因为其总的利用率不超过100%,这样就说明有足够的CPU时间用于执行这些任务。</p>
-<p>但我们来考虑在静态优先级调度算法下的情形，两个任务的优先级有如下两种设置方法。</p>
+        <h2 id="Wireshark整体结构"><a href="#Wireshark整体结构" class="headerlink" title="Wireshark整体结构"></a>Wireshark整体结构</h2><p><img src="https://www.wireshark.org/docs/wsdg_html_chunked/wsdg_graphics/ws-function-blocks.png" alt="wireshark总体架构"></p>
+<p>Wireshark主要由6个模块构成，分别是:</p>
 <ul>
-<li>Case1: Priority(t1)&gt;Priority(t2)</li>
-<li>Case2: Priority(t1)&lt;Priority(t2)</li>
+<li>GUI:这个模块主要用于用户图形界面显示</li>
+<li>CORE:这个模块包含了将其它各个模块联结起来的共同工作的核心逻辑</li>
+<li>Epan:这个模块是数据包分析的核心部分，其中包含了协议栈，以及各个协议分析的实现以及过滤器等</li>
+<li>Wiretap:这个模块实现了读写各种数据包文件的接口及逻辑抽象</li>
+<li>Dumpcap:wireshark的抓包引擎，其底层调用winpcap或libpcap</li>
+<li>Capture:这个模块实现了抓包引擎的接口</li>
 </ul>
-<p>如下图所示，在Case1下两个任务都满足了各自的deadline,但在Case2下，任务1却无法满足它的deadline,尽管cpu仍然有10%的空闲时间，但却已经无法满足实时任务的要求，从这个例子可以看出，调度算法在保障系统实时性和任务的正常执行方面具有重要作用。<br><img src="https://barrgroup.com/images/glossary/RMA_RMAFigure1.gif" alt=""></p>
-<h3 id="RMS-RMA-Rate-Monotonic-Scheduling-Rate-Monotonic-Algorithm"><a href="#RMS-RMA-Rate-Monotonic-Scheduling-Rate-Monotonic-Algorithm" class="headerlink" title="RMS/RMA(Rate Monotonic Scheduling/Rate Monotonic Algorithm)"></a>RMS/RMA(Rate Monotonic Scheduling/Rate Monotonic Algorithm)</h3><p>RMA是为进程分配固定优先级以最大化任务的可调度性的算法，其思想方法很简单：</p>
+<h2 id="Wireshark的初始化"><a href="#Wireshark的初始化" class="headerlink" title="Wireshark的初始化"></a>Wireshark的初始化</h2><p>谈到Wrieshark的初始化就涉及到许多方面，同时由于Wireshark支持众多平台，不同版本，因此其中也涉及到一些平台相关的初始化内容。在这里为了使叙述逻辑更清晰，将不会设计平台相关的初始化部分以及不同实现版本所特有的初始化部分，而只描述其重要功能模块的初始化过程。先从下图了解从Wireshark启动开始其经历了哪些初始化阶段。</p>
+<center>
+![][2]
+</center>
+
+<p>图中灰色部分暂且不叙述，因为每个平台的初始化方式都不一样，对应wireshark的协议分析功能来讲也不是必须的，因为在接下来的文章当中会将重点放在Wireshark是如何实现协议分析的上面，因此对于初始化的描述也将围绕这个来展开。而对于数据的输入仅以Wireshark读取抓包文件为示例，因其在各平台上都是通用的。</p>
+<p>为了不引起不必要的担忧——没说明Capture部分是否就漏过了许多内容，在这儿做个说明：实时抓包获得数据后将数据传给Wireshark分析其过程基本上是大同小异的，唯一的区别就是因数据来源不一样，因此数据的获取接口以及相关的一些输入参数有一定区别，因此理解其中一种后，对于另一种的理解将没有任何难度。</p>
+<h3 id="WireTap模块初始化"><a href="#WireTap模块初始化" class="headerlink" title="WireTap模块初始化"></a>WireTap模块初始化</h3><p>WireTap模块是用于数据包的文件读写的，其中标准的系统I/O的基础上进行了封装，使得面向使用者的接口不用再关心每种文件类型应该怎么读写。首先来看看其初始化入口函数，</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">wtap_init</span><span class="params">(gboolean load_wiretap_plugins)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	init_open_routines();</span><br><span class="line">	wtap_opttypes_initialize();</span><br><span class="line">	wtap_init_encap_types();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>init_open_routines这个函数是个相当简单的函数，从其字面意思就能知道它是用于初始化各种文件的open函数例程的。在WireTap模块中实现了多种文件格式的打开方法。而在这初始化阶段就是将这些各种方法以特定结构存储在一个数组中方便在其它地方使用统一的接口进行调用。从file_access.c文件的全局数据open_info_base就能够知道wireshark支持的所有文件类型及打开方式。</p>
+<p>wtap_opttypes_initialize函数初始化了blocktype_list这么一个数组。</p>
+<p>wtap_init_encap_types这同样初始化了一个数组encap_table_base的信息，这里面保存着所有支持的2层协议的数据封装类型。</p>
+<p>好了到这儿其实可以看出Wiretap没有做任何逻辑上的初始化操作，仅仅是初始化了一些数据以供在其它位置查询与使用。</p>
+<h3 id="Epan的初始化"><a href="#Epan的初始化" class="headerlink" title="Epan的初始化"></a>Epan的初始化</h3><p>Epan的全称为Ethereal Packet ANalyzer，意思是最好的报文分析器。从起名称能够知道Epan其实就是报文分析的模块，相比起WireTap的初始化，Epan的初始化过程要复杂得多。下面通过一张流程图来看看Epan初始化经历了哪些步骤。</p>
+<center>
+![][3]
+</center>
+
+<h4 id="基础服务初始化"><a href="#基础服务初始化" class="headerlink" title="基础服务初始化"></a>基础服务初始化</h4><p>这一部分是Wireshark中与协议无关部分的初始化，但这些部分在Wireshark中却起到了非常大的作用，是Wireshark协议分析实现所依赖的基础。</p>
+<ul>
+<li>内存管理初始化</li>
+</ul>
 <blockquote>
-<p>根据任务的周期分配优先级，周期越短，优先级越高</p>
+<p>Wireshark实现了一套完整的内存管理框架，同时也提供了许多方便的数据结构操作接口，通过这些接口可以很快速的实现许多常用的功能。</p>
 </blockquote>
-<p>根据RMA的算法思想，我们考虑上面的例子，Task1的周期T1=50ms,Task2的周期T2=100ms,则Priority(t1) &gt; Priority(t2),正好对应上面的Case1，也是正好满足两个任务能够正确执行的情形。</p>
-<p>RMA是最优的静态优先级算法，如果一组任务使用RMA算法无法满足调度要求，那么使用其它静态优先级调度算法也无法满足。</p>
-<p>静态优先级调度有其局限性，即不能最大化地利用CPU资源，尽管RMA是最优的静态优先级调度算法，但它有个最坏情形下的可调度边界：</p>
-<p>$$<br>W_n = n*(2^\frac{1}{n} - 1)<br>$$</p>
-<p>其中$n$为系统中的任务总数，当n=1时，最坏情形下的可调度边界为$W_1=100%$,随着系统中任务数量的增加，$W_n$不断减小，当$n\rightarrow\infty$时，$W=\ln 2$(近似等于69.3%)。</p>
-<p>理论上系统中任务的任务对CPU的总利用率只要不超过70%，则其中的任务利用RMA总是可以调度的。反之，如下例子，T1=50,C1=25,T2=75,C2=30时,CPU总的利用率达到90%,当使用RMA调度算法时，Priority(t1)&gt;Priority(t2),Task2将无法满足deadline,如下图：</p>
-<p><img src="https://barrgroup.com/images/glossary/RMA_RMAFigure2.gif" alt=""></p>
-<p>即使反转它们的优先级，仍然无法改变这种状况。面临这种问题，唯一的选择就是改用动态优先级调度算法，但动态优先级调度算法显然会增加系统的复杂度，因此在很多的商业实时系统中不会去采用。</p>
+<ul>
+<li>GUID初始化</li>
+</ul>
+<blockquote>
+<p>这一部分初始化了一个树状结构，用于保存一些全球唯一的uuid,在源码中使用到的场景比较少。</p>
+</blockquote>
+<ul>
+<li>地址解析初始化</li>
+</ul>
+<blockquote>
+<p>地址解析这块分为五部分，</p>
+</blockquote>
+<blockquote>
+<ul>
+<li>应用服务</li>
+<li>物理地址</li>
+<li>IPXNET</li>
+<li>Vlan</li>
+<li>企业</li>
+</ul>
+</blockquote>
+<blockquote>
+<p><strong>应用服务</strong>，初始化了一些常用应用的端口，协议和名称，通过从一个配置文件读入一个Hash表方便在协议分析的时候使用，这个文件名叫services，在Wireshark源码根目录下可以找到。</p>
+</blockquote>
+<blockquote>
+<p><strong>物理地址</strong>，从配置文件中读取物理地址与厂商的对应关系，以及初始化一些知名的物理地址。这两个配置文件分别是manuf与wka,也在源码根目录下可以找到，当然也可以仿照相应格式进行修改与配置。这些信息会被读入Hash表中。</p>
+</blockquote>
+<blockquote>
+<p><strong>IPXNET</strong>，这一步简单的设置了IPXNET配置文件的路径，如/etc/ipxnets</p>
+</blockquote>
+<blockquote>
+<p><strong>Vlan</strong>，设置Vlan配置文件路径,vlan和Ipxnet的信息都不会读入Hash表，都是在需要的时候直接从文件解析获取。</p>
+</blockquote>
+<blockquote>
+<p><strong>企业</strong>，这儿初始化了全球著名企业的信息并存入Hash表，这些企业信息的出处为<a href="https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers" target="_blank" rel="noopener">Enterprise Numbers</a></p>
+</blockquote>
+<ul>
+<li>异常初始化</li>
+</ul>
+<blockquote>
+<p>Wireshark使用C实现，其没有如C++这样的异常处理机制，因此Wireshark实现了一套独立的异常处理框架。</p>
+</blockquote>
+<ul>
+<li>插件初始化</li>
+</ul>
+<blockquote>
+<p>Wireshark包含多种扩展形式，用Lua脚本，用动态库，因此其实现了一套插件机制。在这初始化部分将会扫描插件目录将所有插件加载到Wireshark中。</p>
+</blockquote>
+<ul>
+<li>加密算法库初始化</li>
+</ul>
+<blockquote>
+<p>Wireshark使用了Libgcrypt库做各种加解密，而gcry_control就是Libgcrypt库的初始化接口。</p>
+</blockquote>
+<h4 id="协议分析初始化"><a href="#协议分析初始化" class="headerlink" title="协议分析初始化"></a>协议分析初始化</h4><p>好了对于Wireshark的基础服务部分的初始化部分以及介绍完毕，那么接下来将看看Wireshark最重要的协议解析部分都有哪些重要部分需要初始化。</p>
+<ul>
+<li>TAP</li>
+</ul>
+<blockquote>
+<p>TAP是Wireshark中重要的子系统，可以通过其方便的实现信息收集和报文统计等功能。在初始化阶段没有任何数据结构等的初始化。</p>
+</blockquote>
+<ul>
+<li>Prefs与Expert</li>
+</ul>
+<blockquote>
+<p>这两个模块主要是提供协议详情描述方面的描述信息，比如点开Wireshark能够看到的如Checksum，Disabled，Unknown等字段都是由这两个模块提供。</p>
+</blockquote>
+<ul>
+<li>Packet</li>
+</ul>
+<blockquote>
+<p>Wireshark当中协议与协议之间的跳转完全依赖于Hash表结构，在每个协议的初始化阶段都会将其与其它协议的依赖关系注册到相应Hash表中。而这些不同的Hash表则在Packet中实现（源码路径epan/packet.c），而在这初始化部分则主要对相应的Hash表进行初始化</p>
+</blockquote>
+<ul>
+<li>Conversation</li>
+</ul>
+<blockquote>
+<p>Wireshark实现了一个通用的会话管理模块。在协议处理中通常将拥有对称的五元组信息的数据包归入同一条流，而Wireshark则只使用地址/端口来识别数据包是否同属于一条流。同时为了应对特殊的解析需求，地址/端口的形式又分为如下四种，</p>
+</blockquote>
+<blockquote>
+<ul>
+<li>地址1/端口1-地址2/端口2</li>
+<li>地址1/端口1-端口2</li>
+<li>地址1/端口1-地址2</li>
+<li>地址1/端口1</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>上面的地址/端口的搭配形式表明了可以用不同的信息来标识一条流，而这种实现的产生是由于在某些场景可能只能获取到单向的地址和端口号（及只能获取地址1，端口1），在这种场景下，仍然要求用两个地址和两个端口一起来标识一条流显然是不现实的。Wireshark为了存储这样的不同场景下的流一共构建了4张Hash表。而在这个初始化阶段就是对这4张Hash表的初始化。</p>
+</blockquote>
+<ul>
+<li>Capture Dissector</li>
+</ul>
+<blockquote>
+<p>Capture Dissector的实现与Packet模块的实现基本一致，其作用一样只是应用场景不同。同样是初始化了两个Hash表，可以将不同的Dissecotr保存到其中用于在各个不同Dissector之间跳转。在这Dissector就是指协议分析器，也是Wireshark中协议栈的具体实现。</p>
+</blockquote>
+<ul>
+<li>Reassembly Tables</li>
+</ul>
+<blockquote>
+<p>这儿主要是对各个协议的重组相关数据结构的初始化，每个协议在实现的时候如果有重组相关的需求，就需要向这个模块注册相应重组功能的初始化函数。</p>
+</blockquote>
+<ul>
+<li>Protocol</li>
+</ul>
+<blockquote>
+<p>WireShark有一个协议管理模块，这里面管理着Wireshark支持的所有协议的细节。在初始化阶段会依次调用各个协议的注册回调，通过这样将所有协议注册的信息保存到一个数组中并为每个已分配的协议分配一个唯一的协议ID,在这儿每个协议ID是等同于相应协议在数组中的索引号的。</p>
+</blockquote>
+<blockquote>
+<p>同时这个模块是Wireshark协议的核心模块，在proto.c中实现了对Protocol的初始化，同时还提供了丰富的协议树的操作接口。</p>
+</blockquote>
+<ul>
+<li>Dfilter</li>
+</ul>
+<blockquote>
+<p>Dfilter同样是Wireshark中很有特色的一个模块，其提供了独立的报文字段匹配过滤的框架，通过它可以很方便的指定不同协议的不同字段来过滤相应报文。在这个初始化阶段也仅是初始化一些必要的数据结构。</p>
+</blockquote>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ol>
+<li><a href="https://en.wikipedia.org/wiki/Wireshark" target="_blank" rel="noopener">Wireshark wiki</a></li>
+<li><a href="https://www.wireshark.org/docs/wsdg_html_chunked/" target="_blank" rel="noopener">Wireshark Developer Guide</a></li>
+<li><a href="https://1.na.dl.wireshark.org/src/wireshark-2.4.4.tar.xz" target="_blank" rel="noopener">WireShark Source Code</a></li>
+</ol>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以在下面评论区评论，也可以邮件至 yxhlfx@163.com </span>
@@ -570,11 +678,11 @@
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>UCOS中的一些概念(1)</p>
+    <p><span class="copy-title">文章标题:</span>Wireshark初探</p>
     
     <p><span class="copy-title">本文作者:</span><a  title="红尘追风">红尘追风</a></p>
-    <p><span class="copy-title">发布时间:</span>2018-02-04, 08:44:23</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/2018/02/04/UCOS%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/" title="UCOS中的一些概念(1)">http://www.micernel.com/2018/02/04/UCOS%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/</a>
+    <p><span class="copy-title">发布时间:</span>2018-01-10, 10:26:46</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/2018/01/10/Wireshark%E5%88%9D%E6%8E%A2/" title="Wireshark初探">http://www.micernel.com/2018/01/10/Wireshark%E5%88%9D%E6%8E%A2/</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
@@ -584,46 +692,6 @@
 
 
 
-    
-        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-    "HTML-CSS": {
-        preferredFont: "TeX",
-        availableFonts: ["STIX","TeX"],
-        linebreaks: { automatic:true },
-        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
-    },
-    tex2jax: {
-        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
-        processEscapes: true,
-        ignoreClass: "tex2jax_ignore|dno",
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    },
-    TeX: {
-        equationNumbers: { autoNumber: "AMS" },
-        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
-        Macros: { href: "{}" }
-    },
-    messageStyle: "none"
-    });
-</script>
-<!-- 给MathJax元素添加has-jax class -->
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Queue(function() {
-        var all = MathJax.Hub.getAllJax(), i;
-        for(i=0; i < all.length; i += 1) {
-            all[i].SourceElement().parentNode.className += ' has-jax';
-        }
-    });
-</script>
-<!-- 通过连接CDN加载MathJax的js代码 -->
-<script type="text/javascript" async
-        src="//cdn.bootcss.com/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML">
-</script>
-<input type="hidden" id="MathJax-js"
-        value="//cdn.bootcss.com/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML">
-</input>
     
 
 
