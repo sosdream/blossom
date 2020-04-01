@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+  <title>常见的十大物联网通讯技术优劣及应用场景 | 简</title>
+  <meta name="keywords" content="">
+  <meta name="description" content="常见的十大物联网通讯技术优劣及应用场景 | 简">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="A32和T32间的状态切换当一个处理器在A32状态下时，不能执行T32指令，当一个处理器在T32状态下时，也不能执行A32指令，必须要保证处理器不会收到与当前处理器状态不相容的指令集指令。 处理器的初始化状态依赖于它自身的配置。同时，在汇编代码中，通常应用用如CODE16，CODE32或者THUMB这样类似的关键子标示指令集，如果代码只执行过程中面临两种指令集的切换，则可以用BX或BLX这样的分支">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AArch32">
+<meta property="og:url" content="http://www.micernel.com/2019/09/14/AArch32/index.html">
+<meta property="og:site_name" content="简">
+<meta property="og:description" content="A32和T32间的状态切换当一个处理器在A32状态下时，不能执行T32指令，当一个处理器在T32状态下时，也不能执行A32指令，必须要保证处理器不会收到与当前处理器状态不相容的指令集指令。 处理器的初始化状态依赖于它自身的配置。同时，在汇编代码中，通常应用用如CODE16，CODE32或者THUMB这样类似的关键子标示指令集，如果代码只执行过程中面临两种指令集的切换，则可以用BX或BLX这样的分支">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-09-14T12:43:43.000Z">
+<meta property="article:modified_time" content="2019-09-14T12:43:43.000Z">
+<meta property="article:author" content="红尘追风">
+<meta property="article:tag" content="arm">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="icon" href="/img/avatar.jpg">
+
+<link href="/css/style.css?v=1.0.1" rel="stylesheet">
+
+<link href="/css/hl_theme/atom-light.css?v=1.0.1" rel="stylesheet">
+
+<link href="//cdn.bootcss.com/animate.css/3.5.2/animate.min.css" rel="stylesheet">
+<link href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="/js/jquery.autocomplete.min.js?v=1.0.1" ></script>
+
+<script src="//cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script>
+    hljs.initHighlightingOnLoad();
+</script>
+
+<script src="//cdn.bootcss.com/nprogress/0.2.0/nprogress.min.js"></script>
+
+
+
+<script src="//cdn.bootcss.com/jquery-cookie/1.4.1/jquery.cookie.min.js" ></script>
+
+<script src="/js/iconfont.js?v=1.0.1" ></script>
+
+<meta name="generator" content="Hexo 4.2.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+<div style="display: none">
+  <input class="theme_disqus_on" value="false">
+  <input class="theme_preload_comment" value="false">
+  <input class="theme_blog_path" value="">
+</div>
+
+<body>
+<!-- hexo-inject:begin --><!-- hexo-inject:end --><aside class="nav">
+    <div class="nav-left">
+        <a href="/" class="avatar_target">
+    <img class="avatar" src="/img/avatar.jpg" />
+</a>
+<div class="author">
+    <span>红尘追风</span>
+</div>
+
+<div class="icon">
+    
+        
+        <a title="rss" href="/atom.xml" target="_blank">
+            
+                <svg class="iconfont-svg" aria-hidden="true">
+                    <use xlink:href="#icon-rss"></use>
+                </svg>
+            
+        </a>
+        
+    
+        
+        <a title="github" href="https://github.com/sosdream" target="_blank">
+            
+                <svg class="iconfont-svg" aria-hidden="true">
+                    <use xlink:href="#icon-github"></use>
+                </svg>
+            
+        </a>
+        
+    
+        
+    
+        
+        <a title="email" href="mailto:1137924614@qq.com" target="_blank">
+            
+                <svg class="iconfont-svg" aria-hidden="true">
+                    <use xlink:href="#icon-email"></use>
+                </svg>
+            
+        </a>
+        
+    
+        
+        <a title="qq" href="http://wpa.qq.com/msgrd?v=3&uin=1137924614&site=qq&menu=yes" target="_blank">
+            
+                <svg class="iconfont-svg" aria-hidden="true">
+                    <use xlink:href="#icon-qq"></use>
+                </svg>
+            
+        </a>
+        
+    
+        
+        <a title="kugou" href="https://www.kugou.com/" target="_blank">
+            
+                <svg class="iconfont-svg" aria-hidden="true">
+                    <use xlink:href="#icon-kugou"></use>
+                </svg>
+            
+        </a>
+        
+    
+</div>
+
+
+
+
+<ul>
+    <li><div class="all active">全部文章<small>(74)</small></div></li>
+    
+        
+            
+            <li><div data-rel="System">System<small>(29)</small></div>
+                
+            </li>
+            
+        
+    
+        
+            
+            <li><div data-rel="协议">协议<small>(6)</small></div>
+                
+            </li>
+            
+        
+    
+        
+            
+            <li><div data-rel="嵌入式">嵌入式<small>(16)</small></div>
+                
+            </li>
+            
+        
+    
+        
+            
+            <li><div data-rel="算法">算法<small>(9)</small></div>
+                
+            </li>
+            
+        
+    
+        
+            
+            <li><div data-rel="编程与经验">编程与经验<small>(11)</small></div>
+                
+            </li>
+            
+        
+    
+        
+            
+            <li><div data-rel="杂类">杂类<small>(3)</small></div>
+                
+            </li>
+            
+        
+    
+</ul>
+<div class="left-bottom">
+    <div class="menus">
+    
+    
+    
+    </div>
+    <div><a class="about  hasFriend  site_url"  href="/about">关于</a><a style="width: 50%"  class="friends">友链</a></div>
+</div>
+<input type="hidden" id="yelog_site_posts_number" value="74">
+
+<div style="display: none">
+    <span id="busuanzi_value_site_uv"></span>
+    <span id="busuanzi_value_site_pv"></span>
+</div>
+
+    </div>
+    <div class="nav-right">
+        <div class="friends-area">
+    <div class="friends-title">
+        友情链接
+        <i class="back-title-list"></i>
+    </div>
+    <div class="friends-content">
+        <ul>
+            
+        </ul>
+    </div>
+</div>
+        <div class="title-list">
+    <form onkeydown="if(event.keyCode==13){return false;}">
+        <input class="search" type="text" placeholder="Search..." autocomplete="off"id="local-search-input" >
+        <i class="cross"></i>
+        <span>
+            <label for="tagswitch">Tags:</label>
+            <input id="tagswitch" type="checkbox" style="display: none" />
+            <i id="tagsWitchIcon"></i>
+        </span>
+    </form>
+    <div class="tags-list">
+    
+    <li class="article-tag-list-item">
+        <a class="color4">linux,驱动</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color1">whois</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color5">qcom</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color5">开发环境</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color5">编译工具</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color5">ucos</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color2">real-time system</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color1">array</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color5">wireshark</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color1">linux,udev</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color2">ymodem</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color4">单片机</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color3">烧写</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color4">markdown</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color3">公式</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color3">串口</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color3">目录</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color4">进程间通信，管道</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color2">c</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color5">linux, 驱动</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color4">二叉树</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color3">排序</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color5">网络编程</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color1">linux</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color4">arm</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color4">usb</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color5">PMIC</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color4">c++</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color1">stm32</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color1">uboot</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color4">重定位</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color2">rootfs</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color1">strip</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color5">wifi</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color4">iot</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color4">makefile</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color5">rtos</a>
+    </li>
+    
+    <div class="clearfix"></div>
+</div>
+
+    
+    <nav id="title-list-nav">
+        
+        <a  class="算法 "
+           href="/2015/01/10/BinarySearchTreeIterator/"
+           data-tag="二叉树"
+           data-author="" >
+            <span class="post-title" title="Binary Search Tree Iterator(中序遍历)">Binary Search Tree Iterator(中序遍历)</span>
+            <span class="post-date" title="2015-01-10 10:26:46">2015/01/10</span>
+        </a>
+        
+        <a  class="算法 "
+           href="/2015/02/01/Course_Schedule/"
+           data-tag="排序"
+           data-author="" >
+            <span class="post-title" title="Course Schedule">Course Schedule</span>
+            <span class="post-date" title="2015-02-01 13:01:46">2015/02/01</span>
+        </a>
+        
+        <a  class="编程与经验 "
+           href="/2015/02/15/C++%E8%BF%90%E7%AE%97%E7%AC%A6%E7%9A%84%E4%BC%98%E5%85%88%E7%BA%A7/"
+           data-tag="c++"
+           data-author="" >
+            <span class="post-title" title="C++运算符的优先级">C++运算符的优先级</span>
+            <span class="post-date" title="2015-02-15 14:55:12">2015/02/15</span>
+        </a>
+        
+        <a  class="算法 "
+           href="/2015/03/09/game_of_life/"
+           data-tag="array"
+           data-author="" >
+            <span class="post-title" title="game of life">game of life</span>
+            <span class="post-date" title="2015-03-09 23:44:46">2015/03/09</span>
+        </a>
+        
+        <a  class="算法 "
+           href="/2015/04/18/InsertInterval/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Insert Interval">Insert Interval</span>
+            <span class="post-date" title="2015-04-18 11:06:12">2015/04/18</span>
+        </a>
+        
+        <a  class="算法 "
+           href="/2015/05/01/restore_ip_address/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="restore ip address">restore ip address</span>
+            <span class="post-date" title="2015-05-01 18:13:46">2015/05/01</span>
+        </a>
+        
+        <a  class="算法 "
+           href="/2015/07/26/%E5%90%88%E5%B9%B6%E6%9C%89%E5%BA%8F%E9%93%BE%E8%A1%A8/"
+           data-tag="排序"
+           data-author="" >
+            <span class="post-title" title="合并有序链表">合并有序链表</span>
+            <span class="post-date" title="2015-07-26 19:24:46">2015/07/26</span>
+        </a>
+        
+        <a  class="算法 "
+           href="/2015/08/12/%E7%BB%9F%E8%AE%A1%E6%B5%B7%E6%98%8E%E8%B7%9D%E7%A6%BB/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="统计海明距离">统计海明距离</span>
+            <span class="post-date" title="2015-08-12 14:51:46">2015/08/12</span>
+        </a>
+        
+        <a  class="算法 "
+           href="/2015/08/22/%E7%BA%A6%E7%91%9F%E5%A4%AB%E9%97%AE%E9%A2%98/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="约瑟夫问题">约瑟夫问题</span>
+            <span class="post-date" title="2015-08-22 14:34:21">2015/08/22</span>
+        </a>
+        
+        <a  class="System "
+           href="/2015/09/10/Linux%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%8F%8A%E8%AE%BE%E5%A4%87%E6%96%87%E4%BB%B6/"
+           data-tag="linux,驱动"
+           data-author="" >
+            <span class="post-title" title="Linux的文件系统与设备文件">Linux的文件系统与设备文件</span>
+            <span class="post-date" title="2015-09-10 10:26:46">2015/09/10</span>
+        </a>
+        
+        <a  class="算法 "
+           href="/2015/09/12/%E9%93%BE%E8%A1%A8%E8%A1%A8%E7%A4%BA%E6%95%B0%E7%9A%84%E8%BF%90%E7%AE%97/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="链表表示数的运算">链表表示数的运算</span>
+            <span class="post-date" title="2015-09-12 15:16:50">2015/09/12</span>
+        </a>
+        
+        <a  class="System "
+           href="/2015/11/14/%E7%AE%A1%E9%81%93%E4%B8%8E%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/"
+           data-tag="进程间通信，管道"
+           data-author="" >
+            <span class="post-title" title="管道与消息队列">管道与消息队列</span>
+            <span class="post-date" title="2015-11-14 15:15:46">2015/11/14</span>
+        </a>
+        
+        <a  class="嵌入式 "
+           href="/2016/02/15/armlinuxwifi%E6%94%AF%E6%8C%81/"
+           data-tag="wifi"
+           data-author="" >
+            <span class="post-title" title="arm linux wifi支持">arm linux wifi支持</span>
+            <span class="post-date" title="2016-02-15 09:26:46">2016/02/15</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/04/14/Linux%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/"
+           data-tag="linux"
+           data-author="" >
+            <span class="post-title" title="Linux内存管理">Linux内存管理</span>
+            <span class="post-date" title="2016-04-14 17:26:46">2016/04/14</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/04/25/linux%E4%B8%AD%E7%9A%84%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6(1)/"
+           data-tag="linux,驱动"
+           data-author="" >
+            <span class="post-title" title="linux中的并发控制(1)">linux中的并发控制(1)</span>
+            <span class="post-date" title="2016-04-25 12:02:01">2016/04/25</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/04/28/linux%E4%B8%AD%E7%9A%84%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6(2)/"
+           data-tag="linux,驱动"
+           data-author="" >
+            <span class="post-title" title="linux中的并发控制(2)">linux中的并发控制(2)</span>
+            <span class="post-date" title="2016-04-28 23:01:06">2016/04/28</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/05/07/linux%E5%AD%97%E7%AC%A6%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/"
+           data-tag="linux,驱动"
+           data-author="" >
+            <span class="post-title" title="linux字符设备驱动">linux字符设备驱动</span>
+            <span class="post-date" title="2016-05-07 17:53:18">2016/05/07</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/05/19/linux%E5%9D%97%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/"
+           data-tag="linux"
+           data-author="" >
+            <span class="post-title" title="linux块设备驱动">linux块设备驱动</span>
+            <span class="post-date" title="2016-05-19 21:30:04">2016/05/19</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/05/26/Linux%E5%AE%9A%E6%97%B6%E5%99%A8/"
+           data-tag="ucos"
+           data-author="" >
+            <span class="post-title" title="Linux定时器">Linux定时器</span>
+            <span class="post-date" title="2016-05-26 20:19:43">2016/05/26</span>
+        </a>
+        
+        <a  class="嵌入式 "
+           href="/2016/06/08/uboot-%E7%9A%84start.S%E8%AF%A6%E7%BB%86%E6%B3%A8%E8%A7%A3%E5%8F%8A%E5%88%86%E6%9E%90/"
+           data-tag="uboot"
+           data-author="" >
+            <span class="post-title" title="uboot-的start.S详细注解及分析">uboot-的start.S详细注解及分析</span>
+            <span class="post-date" title="2016-06-08 16:23:46">2016/06/08</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/06/16/linux%E7%9A%84%E4%B8%AD%E6%96%AD/"
+           data-tag="linux, 驱动"
+           data-author="" >
+            <span class="post-title" title="linux的中断">linux的中断</span>
+            <span class="post-date" title="2016-06-16 22:20:46">2016/06/16</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/06/23/linux%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E7%9A%84I_O/"
+           data-tag="linux,驱动"
+           data-author="" >
+            <span class="post-title" title="linux设备驱动中的I/O">linux设备驱动中的I/O</span>
+            <span class="post-date" title="2016-06-23 18:55:30">2016/06/23</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/07/03/linux%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E7%9A%84%E5%BC%82%E6%AD%A5%E9%80%9A%E7%9F%A5%E5%92%8C%E5%BC%82%E6%AD%A5I_O/"
+           data-tag="linux,驱动"
+           data-author="" >
+            <span class="post-title" title="linux设备驱动的异步通知和异步I/O">linux设备驱动的异步通知和异步I/O</span>
+            <span class="post-date" title="2016-07-03 18:32:53">2016/07/03</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/07/13/LinuxI2C/"
+           data-tag="linux"
+           data-author="" >
+            <span class="post-title" title="LinuxI2C">LinuxI2C</span>
+            <span class="post-date" title="2016-07-13 19:51:17">2016/07/13</span>
+        </a>
+        
+        <a  class="嵌入式 "
+           href="/2016/07/15/uboot%E4%BB%A3%E7%A0%81%E5%88%9D%E5%A7%8B%E5%8C%96%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F/"
+           data-tag="uboot"
+           data-author="" >
+            <span class="post-title" title="uboot代码初始化执行顺序">uboot代码初始化执行顺序</span>
+            <span class="post-date" title="2016-07-15 00:31:46">2016/07/15</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/07/20/linuxSPI%E4%B8%BB%E6%9C%BA%E4%B8%8E%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/"
+           data-tag="linux"
+           data-author="" >
+            <span class="post-title" title="linuxSPI主机与设备驱动">linuxSPI主机与设备驱动</span>
+            <span class="post-date" title="2016-07-20 16:44:42">2016/07/20</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/08/11/LinuxUSB/"
+           data-tag="usb"
+           data-author="" >
+            <span class="post-title" title="LinuxUSB">LinuxUSB</span>
+            <span class="post-date" title="2016-08-11 10:26:46">2016/08/11</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/08/20/linuxInput%E5%AD%90%E7%B3%BB%E7%BB%9F/"
+           data-tag="linux"
+           data-author="" >
+            <span class="post-title" title="linuxInput子系统">linuxInput子系统</span>
+            <span class="post-date" title="2016-08-20 15:34:32">2016/08/20</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/08/28/linuxDMA%E7%BC%96%E7%A8%8B/"
+           data-tag="linux"
+           data-author="" >
+            <span class="post-title" title="linuxDMA编程">linuxDMA编程</span>
+            <span class="post-date" title="2016-08-28 01:32:43">2016/08/28</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/09/01/Linux%E7%BD%91%E7%BB%9C%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/"
+           data-tag="linux"
+           data-author="" >
+            <span class="post-title" title="Linux网络设备驱动">Linux网络设备驱动</span>
+            <span class="post-date" title="2016-09-01 15:12:43">2016/09/01</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/09/10/linuxRTC_Framebuffer_TTY_MISC/"
+           data-tag="linux"
+           data-author="" >
+            <span class="post-title" title="linuxRTC\_Framebuffer\_TTY\_MISC">linuxRTC\_Framebuffer\_TTY\_MISC</span>
+            <span class="post-date" title="2016-09-10 22:42:20">2016/09/10</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/09/11/%E8%AE%BE%E5%A4%87IO%E7%AB%AF%E5%8F%A3%E5%8F%8A%E5%86%85%E5%AD%98/"
+           data-tag="linux"
+           data-author="" >
+            <span class="post-title" title="设备I/O端口及内存">设备I/O端口及内存</span>
+            <span class="post-date" title="2016-09-11 22:59:09">2016/09/11</span>
+        </a>
+        
+        <a  class="协议 "
+           href="/2016/09/17/YMODEM%E5%8D%8F%E8%AE%AE/"
+           data-tag="ymodem"
+           data-author="" >
+            <span class="post-title" title="YMODEM协议">YMODEM协议</span>
+            <span class="post-date" title="2016-09-17 20:45:46">2016/09/17</span>
+        </a>
+        
+        <a  class="编程与经验 "
+           href="/2016/09/24/STL%E5%AE%B9%E5%99%A8/"
+           data-tag="c++"
+           data-author="" >
+            <span class="post-title" title="STL容器">STL容器</span>
+            <span class="post-date" title="2016-09-24 20:14:46">2016/09/24</span>
+        </a>
+        
+        <a  class="编程与经验 "
+           href="/2016/10/04/STL%E7%AE%97%E6%B3%95/"
+           data-tag="c++"
+           data-author="" >
+            <span class="post-title" title="STL算法">STL算法</span>
+            <span class="post-date" title="2016-10-04 11:12:43">2016/10/04</span>
+        </a>
+        
+        <a  class="编程与经验 "
+           href="/2016/10/05/STLvector/"
+           data-tag="c++"
+           data-author="" >
+            <span class="post-title" title="STLvector">STLvector</span>
+            <span class="post-date" title="2016-10-05 14:32:12">2016/10/05</span>
+        </a>
+        
+        <a  class="编程与经验 "
+           href="/2016/10/06/STLlist/"
+           data-tag="c++"
+           data-author="" >
+            <span class="post-title" title="STL\_list">STL\_list</span>
+            <span class="post-date" title="2016-10-06 13:56:18">2016/10/06</span>
+        </a>
+        
+        <a  class="编程与经验 "
+           href="/2016/10/14/STL%E8%BF%AD%E4%BB%A3%E5%99%A8/"
+           data-tag="c++"
+           data-author="" >
+            <span class="post-title" title="STL迭代器">STL迭代器</span>
+            <span class="post-date" title="2016-10-14 21:15:46">2016/10/14</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/10/23/OTA_Package_Create/"
+           data-tag="qcom"
+           data-author="" >
+            <span class="post-title" title="OTA升级包制作">OTA升级包制作</span>
+            <span class="post-date" title="2016-10-23 19:53:38">2016/10/23</span>
+        </a>
+        
+        <a  class="杂类 "
+           href="/2016/11/04/MarkDown%E4%B9%A6%E5%86%99%E8%A7%84%E5%88%99/"
+           data-tag="markdown,公式"
+           data-author="" >
+            <span class="post-title" title="MarkDown中公式书写">MarkDown中公式书写</span>
+            <span class="post-date" title="2016-11-04 18:44:43">2016/11/04</span>
+        </a>
+        
+        <a  class="杂类 "
+           href="/2016/11/19/MakefileConventions/"
+           data-tag="makefile"
+           data-author="" >
+            <span class="post-title" title="Makefile Conventions">Makefile Conventions</span>
+            <span class="post-date" title="2016-11-19 23:32:46">2016/11/19</span>
+        </a>
+        
+        <a  class="嵌入式 "
+           href="/2016/12/03/Linux%E7%9A%84%E7%A7%BB%E6%A4%8D(1)/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Linux的移植(1)">Linux的移植(1)</span>
+            <span class="post-date" title="2016-12-03 20:31:12">2016/12/03</span>
+        </a>
+        
+        <a  class="嵌入式 "
+           href="/2016/12/16/Linux%E7%9A%84%E7%A7%BB%E6%A4%8D(2)/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Linux的移植(2)">Linux的移植(2)</span>
+            <span class="post-date" title="2016-12-16 20:41:10">2016/12/16</span>
+        </a>
+        
+        <a  class="嵌入式 "
+           href="/2016/12/21/Linux%E7%9A%84%E7%A7%BB%E6%A4%8D(3)/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Linux的移植(3)">Linux的移植(3)</span>
+            <span class="post-date" title="2016-12-21 18:49:28">2016/12/21</span>
+        </a>
+        
+        <a  class="System "
+           href="/2017/01/09/Linux%E7%94%B5%E6%BA%90%E7%AE%A1%E7%90%86(1)/"
+           data-tag="PMIC"
+           data-author="" >
+            <span class="post-title" title="Linux电源管理(1)">Linux电源管理(1)</span>
+            <span class="post-date" title="2017-01-09 18:15:17">2017/01/09</span>
+        </a>
+        
+        <a  class="System "
+           href="/2017/01/17/Linux%E7%94%B5%E6%BA%90%E7%AE%A1%E7%90%86(2)/"
+           data-tag="PMIC"
+           data-author="" >
+            <span class="post-title" title="Linux电源管理(2)">Linux电源管理(2)</span>
+            <span class="post-date" title="2017-01-17 19:21:49">2017/01/17</span>
+        </a>
+        
+        <a  class="System "
+           href="/2017/01/28/Linux%E7%94%B5%E6%BA%90%E7%AE%A1%E7%90%86(3)/"
+           data-tag="PMIC"
+           data-author="" >
+            <span class="post-title" title="Linux电源管理(3)">Linux电源管理(3)</span>
+            <span class="post-date" title="2017-01-28 18:51:30">2017/01/28</span>
+        </a>
+        
+        <a  class="System "
+           href="/2017/03/15/udev/"
+           data-tag="linux,udev"
+           data-author="" >
+            <span class="post-title" title="UDEV">UDEV</span>
+            <span class="post-date" title="2017-03-15 21:41:03">2017/03/15</span>
+        </a>
+        
+        <a  class="编程与经验 "
+           href="/2017/03/19/wpa_supplicant%E6%95%85%E9%9A%9C%E4%B8%8E%E8%B0%83%E8%AF%95/"
+           data-tag="wifi"
+           data-author="" >
+            <span class="post-title" title="wpa\_supplicant故障与调试">wpa\_supplicant故障与调试</span>
+            <span class="post-date" title="2017-03-19 21:32:17">2017/03/19</span>
+        </a>
+        
+        <a  class="协议 "
+           href="/2017/04/06/%E4%B8%B2%E5%8F%A3%E5%8F%8A%E5%85%B6%E4%BD%BF%E7%94%A8/"
+           data-tag="串口"
+           data-author="" >
+            <span class="post-title" title="串口及其使用">串口及其使用</span>
+            <span class="post-date" title="2017-04-06 22:07:15">2017/04/06</span>
+        </a>
+        
+        <a  class="System "
+           href="/2017/05/04/linux%E6%A0%B9%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E6%8C%82%E8%BD%BD%E8%BF%87%E7%A8%8B/"
+           data-tag="rootfs"
+           data-author="" >
+            <span class="post-title" title="linux根文件系统的挂载过程">linux根文件系统的挂载过程</span>
+            <span class="post-date" title="2017-05-04 15:43:32">2017/05/04</span>
+        </a>
+        
+        <a  class="编程与经验 "
+           href="/2017/05/20/C10k%E9%97%AE%E9%A2%98%E5%8F%8A%E7%BD%91%E7%BB%9C%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1/"
+           data-tag="网络编程"
+           data-author="" >
+            <span class="post-title" title="C10k问题及网络程序设计">C10k问题及网络程序设计</span>
+            <span class="post-date" title="2017-05-20 18:33:54">2017/05/20</span>
+        </a>
+        
+        <a  class="协议 "
+           href="/2017/09/12/Wireshark%E5%88%9D%E6%8E%A2/"
+           data-tag="wireshark"
+           data-author="" >
+            <span class="post-title" title="Wireshark初探">Wireshark初探</span>
+            <span class="post-date" title="2017-09-12 22:14:46">2017/09/12</span>
+        </a>
+        
+        <a  class="协议 "
+           href="/2017/09/22/Wireshark%E4%BB%8E%E6%95%B0%E6%8D%AE%E8%AF%BB%E5%85%A5%E5%88%B0%E5%8D%8F%E8%AE%AE%E5%A4%84%E7%90%86/"
+           data-tag="wireshark"
+           data-author="" >
+            <span class="post-title" title="Wireshark从数据读入到协议处理">Wireshark从数据读入到协议处理</span>
+            <span class="post-date" title="2017-09-22 15:38:46">2017/09/22</span>
+        </a>
+        
+        <a  class="编程与经验 "
+           href="/2017/12/27/CPU%E5%8D%A0%E7%94%A8%E7%8E%87%E9%AB%98%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="CPU占用率高问题分析">CPU占用率高问题分析</span>
+            <span class="post-date" title="2017-12-27 22:53:23">2017/12/27</span>
+        </a>
+        
+        <a  class="System "
+           href="/2018/01/10/%E4%BB%BB%E5%8A%A1%E6%8E%A7%E5%88%B6%E5%9D%97%E5%8F%8A%E5%85%B6%E5%88%9D%E5%A7%8B%E5%8C%96/"
+           data-tag="ucos"
+           data-author="" >
+            <span class="post-title" title="UCOS的任务管理">UCOS的任务管理</span>
+            <span class="post-date" title="2018-01-10 10:26:46">2018/01/10</span>
+        </a>
+        
+        <a  class="杂类 "
+           href="/2018/01/10/%E8%B5%84%E6%BA%90%E7%9B%AE%E5%BD%95/"
+           data-tag="目录"
+           data-author="" >
+            <span class="post-title" title="资源目录">资源目录</span>
+            <span class="post-date" title="2018-01-10 10:26:46">2018/01/10</span>
+        </a>
+        
+        <a  class="编程与经验 "
+           href="/2018/01/15/%E5%85%B3%E4%BA%8E%E7%A9%BA%E6%8C%87%E9%92%88%E9%97%AE%E9%A2%98%E6%8E%A2%E7%A9%B6/"
+           data-tag="c"
+           data-author="" >
+            <span class="post-title" title="关于空指针问题探究">关于空指针问题探究</span>
+            <span class="post-date" title="2018-01-15 12:15:53">2018/01/15</span>
+        </a>
+        
+        <a  class="System "
+           href="/2018/02/04/UCOS%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/"
+           data-tag="ucos,real-time system"
+           data-author="" >
+            <span class="post-title" title="UCOS中的一些概念(1)">UCOS中的一些概念(1)</span>
+            <span class="post-date" title="2018-02-04 08:44:23">2018/02/04</span>
+        </a>
+        
+        <a  class="System "
+           href="/2018/02/04/UCOS%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B52/"
+           data-tag="ucos,real-time system"
+           data-author="" >
+            <span class="post-title" title="UCOS中的一些概念(2)">UCOS中的一些概念(2)</span>
+            <span class="post-date" title="2018-02-04 08:44:23">2018/02/04</span>
+        </a>
+        
+        <a  class="协议 "
+           href="/2018/02/05/IP%E6%9F%A5%E8%AF%A2%E5%8E%9F%E7%90%86/"
+           data-tag="whois"
+           data-author="" >
+            <span class="post-title" title="IP查询原理">IP查询原理</span>
+            <span class="post-date" title="2018-02-05 19:43:46">2018/02/05</span>
+        </a>
+        
+        <a  class="嵌入式 "
+           href="/2019/01/18/%E4%BB%A3%E7%A0%81%E9%87%8D%E5%AE%9A%E4%BD%8D%E4%B8%8Euboot/"
+           data-tag="重定位"
+           data-author="" >
+            <span class="post-title" title="代码重定位与uboot">代码重定位与uboot</span>
+            <span class="post-date" title="2019-01-18 17:02:41">2019/01/18</span>
+        </a>
+        
+        <a  class="编程与经验 "
+           href="/2019/02/13/%E5%85%B3%E4%BA%8Eswitch%E7%9A%84%E8%AE%A8%E8%AE%BA/"
+           data-tag="c"
+           data-author="" >
+            <span class="post-title" title="关于switch的讨论">关于switch的讨论</span>
+            <span class="post-date" title="2019-02-13 22:49:46">2019/02/13</span>
+        </a>
+        
+        <a  class="嵌入式 "
+           href="/2019/03/04/Linux:Mac%E4%B8%8A%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/"
+           data-tag="开发环境,编译工具"
+           data-author="" >
+            <span class="post-title" title="Linux/Mac嵌入式开发环境的搭建">Linux/Mac嵌入式开发环境的搭建</span>
+            <span class="post-date" title="2019-03-04 08:44:23">2019/03/04</span>
+        </a>
+        
+        <a  class="嵌入式 "
+           href="/2019/03/10/%E5%85%B3%E4%BA%8ECMSIS/"
+           data-tag="arm"
+           data-author="" >
+            <span class="post-title" title="关于CMSIS">关于CMSIS</span>
+            <span class="post-date" title="2019-03-10 21:31:46">2019/03/10</span>
+        </a>
+        
+        <a  class="嵌入式 "
+           href="/2019/03/13/%E5%8D%95%E7%89%87%E6%9C%BA%E7%9A%84%E7%83%A7%E5%86%99/"
+           data-tag="单片机,烧写"
+           data-author="" >
+            <span class="post-title" title="单片机的烧写方式">单片机的烧写方式</span>
+            <span class="post-date" title="2019-03-13 10:53:23">2019/03/13</span>
+        </a>
+        
+        <a  class="System "
+           href="/2019/04/10/FreeRTOS%E9%93%BE%E8%A1%A8%E4%B8%8E%E9%80%9A%E4%BF%A1%E6%9C%BA%E5%88%B6/"
+           data-tag="rtos"
+           data-author="" >
+            <span class="post-title" title="FreeRTOS链表与通信机制">FreeRTOS链表与通信机制</span>
+            <span class="post-date" title="2019-04-10 10:23:46">2019/04/10</span>
+        </a>
+        
+        <a  class="嵌入式 "
+           href="/2019/04/17/%E5%85%B3%E4%BA%8EArm%E6%9E%B6%E6%9E%84/"
+           data-tag="arm"
+           data-author="" >
+            <span class="post-title" title="关于Arm架构">关于Arm架构</span>
+            <span class="post-date" title="2019-04-17 15:36:43">2019/04/17</span>
+        </a>
+        
+        <a  class="嵌入式 "
+           href="/2019/05/01/%E5%9F%BA%E4%BA%8EHAL%E5%BA%93%E7%9A%84GPIO%E9%85%8D%E7%BD%AE/"
+           data-tag="stm32"
+           data-author="" >
+            <span class="post-title" title="基于HAL库的GPIO配置">基于HAL库的GPIO配置</span>
+            <span class="post-date" title="2019-05-01 12:05:21">2019/05/01</span>
+        </a>
+        
+        <a  class="嵌入式 "
+           href="/2019/05/15/%E5%9F%BA%E4%BA%8EHAL%E5%BA%93%E7%9A%84USART%E4%B8%B2%E5%8F%A3%E9%80%9A%E4%BF%A1%E9%85%8D%E7%BD%AE/"
+           data-tag="stm32"
+           data-author="" >
+            <span class="post-title" title="基于HAL库的USART串口通信配置">基于HAL库的USART串口通信配置</span>
+            <span class="post-date" title="2019-05-15 22:41:32">2019/05/15</span>
+        </a>
+        
+        <a  class="嵌入式 "
+           href="/2019/06/03/%E5%A6%82%E4%BD%95%E5%AF%B9%E5%BA%93%E5%92%8C%E5%8F%AF%E6%89%A7%E8%A1%8C%E6%96%87%E4%BB%B6%E8%BF%9B%E8%A1%8C%E8%A3%81%E5%87%8F/"
+           data-tag="strip"
+           data-author="" >
+            <span class="post-title" title="如何对库和可执行文件进行裁减">如何对库和可执行文件进行裁减</span>
+            <span class="post-date" title="2019-06-03 15:42:40">2019/06/03</span>
+        </a>
+        
+        <a  class="嵌入式 "
+           href="/2019/06/22/%E5%B8%B8%E8%A7%81%E7%9A%84%E5%8D%81%E5%A4%A7%E7%89%A9%E8%81%94%E7%BD%91%E9%80%9A%E8%AE%AF%E6%8A%80%E6%9C%AF%E4%BC%98%E5%8A%A3%E5%8F%8A%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="常见的十大物联网通讯技术优劣及应用场景">常见的十大物联网通讯技术优劣及应用场景</span>
+            <span class="post-date" title="2019-06-22 11:23:46">2019/06/22</span>
+        </a>
+        
+        <a  class="协议 "
+           href="/2019/06/26/%E7%89%A9%E8%81%94%E7%BD%91%E7%9A%84%E4%B8%83%E5%A4%A7%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/"
+           data-tag="iot"
+           data-author="" >
+            <span class="post-title" title="物联网的七大通信协议">物联网的七大通信协议</span>
+            <span class="post-date" title="2019-06-26 17:33:46">2019/06/26</span>
+        </a>
+        
+        <a  class="嵌入式 "
+           href="/2019/09/14/AArch32/"
+           data-tag="arm"
+           data-author="" >
+            <span class="post-title" title="AArch32">AArch32</span>
+            <span class="post-date" title="2019-09-14 20:43:43">2019/09/14</span>
+        </a>
+        
+    </nav>
+</div>
+    </div>
+    <div class="hide-list">
+        <div class="semicircle">
+            <div class="brackets first"><</div>
+            <div class="brackets">&gt;</div>
+        </div>
+    </div>
+</aside>
+<div class="post">
+    <div class="pjax">
+        <article id="post-常见的十大物联网通讯技术优劣及应用场景" class="article article-type-post" itemscope itemprop="blogPost">
+    
+        <h1 class="article-title">常见的十大物联网通讯技术优劣及应用场景</h1>
+    
+    <div class="article-meta">
+        
+        
+        
+        <span class="book">
+            
+                <a  data-rel="嵌入式">嵌入式</a>
+            
+        </span>
+        
+        
+    </div>
+    <div class="article-meta">
+        
+    </div>
+    <div class="article-meta">
+        
+        
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#蓝牙的技术特点"><span class="toc-text">蓝牙的技术特点</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#ZigBee的技术特点"><span class="toc-text">ZigBee的技术特点</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Wi-Fi的技术特点"><span class="toc-text">Wi-Fi的技术特点</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#LiFi的技术特点"><span class="toc-text">LiFi的技术特点</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#GPRS的技术特点"><span class="toc-text">GPRS的技术特点</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Z-Wave的技术特点"><span class="toc-text">Z-Wave的技术特点</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#射频433的技术特点"><span class="toc-text">射频433的技术特点</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#NFC的技术特点"><span class="toc-text">NFC的技术特点</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#UWB-的技术特点"><span class="toc-text">UWB 的技术特点</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Modbus的技术特点"><span class="toc-text">Modbus的技术特点</span></a></li></ol>
+    
+<style>
+    .left-col .switch-btn,
+    .left-col .switch-area {
+        display: none;
+    }
+    .toc-level-3 i,
+    .toc-level-3 ol {
+        display: none !important;
+    }
+</style>
+</div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>如今，”万物互联”不只是一种愿景，在很多实际的应用场景里面，已经实现了局部的物联网，如工业自动化、智慧农业、智能公交、高端酒店等场所。物联网是未来十年最具有市场前景的领域，相关的无线通讯技术也逐步出现。</p>
+<p>在实现物联网的通讯技术里面，蓝牙、zigbee、Wi-Fi、GPRS、NFC等是应用最为广泛的无线技术。除了这些，还有很多无线技术，它们在各自适合的场景里默默耕耘，扮演着不可或缺的角色。本文笔者将通过常见的十大无线通讯技术优劣及应用场景，带大家认识真正的物联网通讯技术。</p>
+<p><img src="https://images.m.ofweek.com/Upload/News/2018-09/27/dingdehui/1538026695021024503.png" alt="十大物联网通讯技术优劣及应用场景"></p>
+<h1 id="蓝牙的技术特点"><a href="#蓝牙的技术特点" class="headerlink" title="蓝牙的技术特点"></a>蓝牙的技术特点</h1><p>蓝牙是一种无线技术标准，可实现固定设备、移动设备和楼宇个人域网之间的短距离数据交换，蓝牙可连接多个设备，克服了数据同步的难题。蓝牙技术最初由电信巨头爱立信公司于1994年创制。如今蓝牙由蓝牙技术联盟管理，蓝牙技术联盟在全球拥有超过25,000家成员公司，它们分布在电信、计算机、网络、和消费电子等多重领域。</p>
+<p>蓝牙技术的特点包括采用跳频技术，抗信号衰落；快跳频和短分组技术能减少同频干扰，保证传输的可靠性；前向纠错编码技术可减少远距离传输时的随机噪声影响；用FM调制方式降低设备的复杂性等。其中蓝牙核心规格是提供两个或以上的微微网连接以形成分布式网络，让特定的设备在这些微微网中自动同时地分别扮演主和从的角色。蓝牙主设备最多可与一个微网中的七个设备通讯， 设备之间可通过协议转换角色，从设备也可转换为主设备。</p>
+<h1 id="ZigBee的技术特点"><a href="#ZigBee的技术特点" class="headerlink" title="ZigBee的技术特点"></a>ZigBee的技术特点</h1><p>与蓝牙技术不同，ZigBee技术是一种短距离、低功耗、便宜的无线通信技术，它是一种低速短距离传输的无线网络协议。这一名称来源于蜜蜂的八字舞，由于蜜蜂是靠飞翔和”嗡嗡”(zig)地抖动翅膀(bee)的”舞蹈”来与同伴传递花粉所在方位信息，也就是说蜜蜂依靠这样的方式构成了群体中的通信网络。</p>
+<p>ZigBee的特点是近距离、低复杂度、自组织、低功耗、低数据速率，ZigBee协议从下到上分别为物理层、媒体访问控制层、传输层、网络层、应用层等，其中物理层和媒体访问控制层遵循IEEE 802.15.4标准的规定。ZigBee技术适合用于自动控制和远程控制领域，可以嵌入各种设备。</p>
+<h1 id="Wi-Fi的技术特点"><a href="#Wi-Fi的技术特点" class="headerlink" title="Wi-Fi的技术特点"></a>Wi-Fi的技术特点</h1><p>Wi-Fi在我们的生活中非常常见，一线城市的几乎所有公共场所均设有无线网络，这是由于它的低成本和传输特性决定的。Wi-Fi是一种允许电子设备连接到一个无线局域网的技术，通常使用2.4G UHF或5G SHF ISM 射频频段，连接到无线局域网通常是有密码保护的；但也可是开放的，这样就允许任何在WLAN范围内的设备可以连接上。</p>
+<p>由于无线网络的频段在世界范围内是无需任何电信运营执照的，因此WLAN无线设备提供了一个世界范围内可以使用的，费用极其低廉且数据带宽极高的无线空中接口。用户可以在Wi-Fi覆盖区域内快速浏览网页，随时随地接听拨打电话，有了Wi-Fi功能我们打长途电话、浏览网页、收发电子邮件、音乐下载、数码照片传递等，再无需担心速度慢和花费高的问题。</p>
+<p>无线网络在掌上设备上应用越来越广泛，而智能手机就是其中一份子。与早前应用于手机上的蓝牙技术不同，Wi-Fi具有更大的覆盖范围和更高的传输速率，因此Wi-Fi手机成为了2010年移动通信业界的时尚潮流。</p>
+<h1 id="LiFi的技术特点"><a href="#LiFi的技术特点" class="headerlink" title="LiFi的技术特点"></a>LiFi的技术特点</h1><p>LiFi也叫可见光无线通信，它是一种利用可见光波谱进行数据传输的全新无线传输技术，由英国爱丁堡大学电子通信学院移动通信系主席、德国物理学家哈拉尔德?哈斯教授发明。LiFi是运用已铺设好的设备，通过在灯泡上植入一个微小的芯片形成类似于WiFi热点的设备，使终端随时能接入网络。</p>
+<p>该技术最大的特点是通过改变房间照明光线的闪烁频率进行数据传输，只要在室内开启电灯，无需WiFi也便可接入互联网，未来在智能家居中有着广泛的应用前景。</p>
+<h1 id="GPRS的技术特点"><a href="#GPRS的技术特点" class="headerlink" title="GPRS的技术特点"></a>GPRS的技术特点</h1><p>GPRS我们可以说非常熟悉了，它是GSM移动电话用户可用的一种移动数据业务，属于第二代移动通信中的数据传输技术。GPRS可说是GSM的延续，GPRS和以往连续在频道传输的方式不同，是以封包式来传输，因此使用者所负担的费用是以其传输资料单位计算，并非使用其整个频道，理论上较为便宜。</p>
+<p>GPRS是介于2G和3G之间的技术，也被称为2.5G，它为实现从GSM向3G的平滑过渡奠定了基础。随着移动通信技术发展，3G、4G、5G技术均被研发出来，GPRS也逐渐被这些技术所取代。</p>
+<h1 id="Z-Wave的技术特点"><a href="#Z-Wave的技术特点" class="headerlink" title="Z-Wave的技术特点"></a>Z-Wave的技术特点</h1><p>Z-Wave是一种新兴的基于射频的、低成本、低功耗、高可靠、适于网络的短距离无线通信技术，由丹麦公司Zensys所一手主导的无线组网规格。工作频带为908.42MHz(美国)~868.42MHz(欧洲)，采用FSK(BFSK/GFSK)调制方式，数据传输速率为9.6 kbps，适合于窄宽带应用场合。</p>
+<p>随着通信距离的增大，设备的复杂度、功耗以及系统成本都在增加，相对于现有的各种无线通信技术，Z-Wave技术将是最低功耗和最低成本的技术，有力地推动着低速率无线个人区域网。</p>
+<h1 id="射频433的技术特点"><a href="#射频433的技术特点" class="headerlink" title="射频433的技术特点"></a>射频433的技术特点</h1><p>射频433也叫无线收发模组，采用射频技术，由全数字科技生产的单IC 射频前段与ATMEL的AVR单片机组成，可高速传输数据信号的微型收发信机，无线传输的数据进行打包﹑检错﹑纠错处理。</p>
+<p>射频433技术的应用范围包括无线POS机、PDA等无线智能终端、安防、机房设备无线监控、门禁系统。交通、气象、环境数据采集、智能小区、楼宇自动化、PLC、物流追踪、仓库巡检等领域。</p>
+<h1 id="NFC的技术特点"><a href="#NFC的技术特点" class="headerlink" title="NFC的技术特点"></a>NFC的技术特点</h1><p>NFC是一种新兴的技术，使用了NFC技术的设备可以在彼此靠近的情况下进行数据交换，是由非接触式射频识别(RFID)及互连互通技术整合演变而来，通过在单一芯片上集成感应式读卡器、感应式卡片和点对点通信的功能，利用移动终端实现移动支付、门禁、身份识别等应用。</p>
+<p>近场通信技术实现了电子支付、身份认证、票务、数据交换、防伪、广告等多种功能，它改变了用户使用移动电话的方式，使用户的消费行为逐步走向电子化。</p>
+<h1 id="UWB-的技术特点"><a href="#UWB-的技术特点" class="headerlink" title="UWB 的技术特点"></a>UWB 的技术特点</h1><p>UWB是一种无载波通信技术，利用纳秒至微秒级的非正弦波窄脉冲传输数据。UWB在早期被用来应用在近距离高速数据传输，近年来国外开始利用其亚纳秒级超窄脉冲来做近距离精确室内定位。</p>
+<p>与蓝牙和WLAN等带宽相对较窄的传统无线系统不同，UWB能在宽频上发送一系列非常窄的低功率脉冲。较宽的频谱、较低的功率、脉冲化数据，意味着UWB引起的干扰小于传统的窄带无线解决方案，并能够在室内无线环境中提供与有线相媲美的性能。</p>
+<h1 id="Modbus的技术特点"><a href="#Modbus的技术特点" class="headerlink" title="Modbus的技术特点"></a>Modbus的技术特点</h1><p>Modbus是一种串行通信协议，是Modicon公司（现在叫施耐德电气）于1979年为使用可编程逻辑控制器通信而发表。Modbus已经成为工业领域通信协议的业界标准，并且现在是工业电子设备之间常用的连接方式。</p>
+<p>Modbus协议是一个master/slave架构的协议。有一个master节点，其它使用Modbus协议参与通信的节点是slave节点，每一个slave设备都有一个唯一的地址。在串行和MB+网络中，只有被指定为主节点的节点可以启动一个命令。</p>
+<p>有许多modems和网关支持Modbus协议，因为Modbus协议很简单而且容易复制，它们当中一些为这个协议特别设计的，不过设计者需要克服一些包括高延迟和时序的问题。</p>
+
+      
+       <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以在下面评论区评论，也可以邮件至 yxhlfx@163.com </span>
+    </div>
+</article>
+
+
+
+<div class="article_copyright">
+    <p><span class="copy-title">文章标题:</span>常见的十大物联网通讯技术优劣及应用场景</p>
+    
+    <p><span class="copy-title">本文作者:</span><a  title="红尘追风">红尘追风</a></p>
+    <p><span class="copy-title">发布时间:</span>2019-06-22, 11:23:46</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/2019/06/22/%E5%B8%B8%E8%A7%81%E7%9A%84%E5%8D%81%E5%A4%A7%E7%89%A9%E8%81%94%E7%BD%91%E9%80%9A%E8%AE%AF%E6%8A%80%E6%9C%AF%E4%BC%98%E5%8A%A3%E5%8F%8A%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/" title="常见的十大物联网通讯技术优劣及应用场景">http://www.micernel.com/2019/06/22/%E5%B8%B8%E8%A7%81%E7%9A%84%E5%8D%81%E5%A4%A7%E7%89%A9%E8%81%94%E7%BD%91%E9%80%9A%E8%AE%AF%E6%8A%80%E6%9C%AF%E4%BC%98%E5%8A%A3%E5%8F%8A%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/</a>
+    <p>
+        <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+    </p>
+</div>
+
+
+
+
+
+    
+
+
+
+
+    </div>
+    <div class="copyright">
+        <p class="footer-entry">©2016-2019 Honglin</p>
+<p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
+
+    </div>
+    <div class="full-toc">
+        <button class="full"><span class="min "></span></button>
+<button class="post-toc-menu"><span class="post-toc-menu-icons"></span></button>
+<div class="post-toc"><span class="post-toc-title">目录</span>
+    <div class="post-toc-content">
+
+    </div>
+</div>
+<a class="" id="rocket" ></a>
+
+    </div>
+</div>
+<div class="acParent"></div><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</body>
+<script src="/js/jquery.pjax.js?v=1.0.1" ></script>
+
+<script src="/js/script.js?v=1.0.1" ></script>
+<script>
+    var img_resize = 'default';
+    /*作者、标签的自动补全*/
+    $(function () {
+        $('.search').AutoComplete({
+            'data': ['#linux,驱动','#whois','#qcom','#开发环境','#编译工具','#ucos','#real-time system','#array','#wireshark','#linux,udev','#ymodem','#单片机','#烧写','#markdown','#公式','#串口','#目录','#进程间通信，管道','#c','#linux, 驱动','#二叉树','#排序','#网络编程','#linux','#arm','#usb','#PMIC','#c++','#stm32','#uboot','#重定位','#rootfs','#strip','#wifi','#iot','#makefile','#rtos',],
+            'itemHeight': 20,
+            'width': 418
+        }).AutoComplete('show');
+    })
+    function initArticle() {
+        /*渲染对应的表格样式*/
+        
+            $(".post .pjax table").addClass("green_title");
+        
+
+        /*渲染打赏样式*/
+        
+
+        /*高亮代码块行号*/
+        
+        $('pre code').each(function(){
+            var lines = $(this).text().split('\n').length - 1, widther='';
+            if (lines>99) {
+                widther = 'widther'
+            }
+            var $numbering = $('<ul/>').addClass('pre-numbering ' + widther).attr("unselectable","on");
+            $(this).addClass('has-numbering ' + widther)
+                    .parent()
+                    .append($numbering);
+            for(var i=1;i<=lines;i++){
+                $numbering.append($('<li/>').text(i));
+            }
+        });
+        
+
+        /*访问数量*/
+        
+
+        /*代码高亮，行号对齐*/
+        $('.pre-numbering').css('line-height',$('.has-numbering').css('line-height'));
+
+        
+        
+    }
+
+    /*打赏页面隐藏与展示*/
+    
+
+</script>
+
+<!--加入行号的高亮代码块样式-->
+
+<style>
+    pre{
+        position: relative;
+        margin-bottom: 24px;
+        border-radius: 10px;
+        border: 1px solid #e2dede;
+        background: #FFF;
+        overflow: hidden;
+    }
+    code.has-numbering{
+        margin-left: 30px;
+    }
+    code.has-numbering.widther{
+        margin-left: 35px;
+    }
+    .pre-numbering{
+        margin: 0px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 20px;
+        padding: 0.5em 3px 0.7em 5px;
+        border-right: 1px solid #C3CCD0;
+        text-align: right;
+        color: #AAA;
+        background-color: #fafafa;
+    }
+    .pre-numbering.widther {
+        width: 35px;
+    }
+</style>
+
+<!--自定义样式设置-->
+<style>
+    
+    
+    .nav {
+        width: 542px;
+    }
+    .nav.fullscreen {
+        margin-left: -542px;
+    }
+    .nav-left {
+        width: 120px;
+    }
+    
+    
+    @media screen and (max-width: 1468px) {
+        .nav {
+            width: 492px;
+        }
+        .nav.fullscreen {
+            margin-left: -492px;
+        }
+        .nav-left {
+            width: 100px;
+        }
+    }
+    
+    
+    @media screen and (max-width: 1024px) {
+        .nav {
+            width: 492px;
+            margin-left: -492px
+        }
+        .nav.fullscreen {
+            margin-left: 0;
+        }
+        .nav .hide-list.fullscreen {
+            left: 492px
+        }
+    }
+    
+    @media screen and (max-width: 426px) {
+        .nav {
+            width: 100%;
+        }
+        .nav-left {
+            width: 100%;
+        }
+    }
+    
+    
+    .nav-right .title-list nav a .post-title, .nav-right .title-list #local-search-result a .post-title {
+        color: #383636;
+    }
+    
+    
+    .nav-right .title-list nav a .post-date, .nav-right .title-list #local-search-result a .post-date {
+        color: #5e5e5f;
+    }
+    
+    
+    .nav-right nav a.hover, #local-search-result a.hover{
+        background-color: #e2e0e0;
+    }
+    
+    
+
+    /*列表样式*/
+    
+    .post .pjax article .article-entry>ol, .post .pjax article .article-entry>ul, .post .pjax article>ol, .post .pjax article>ul{
+        border: #e2dede solid 1px;
+        border-radius: 10px;
+        padding: 10px 32px 10px 56px;
+    }
+    .post .pjax article .article-entry li>ol, .post .pjax article .article-entry li>ul,.post .pjax article li>ol, .post .pjax article li>ul{
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+    .post .pjax article .article-entry>ol>li, .post .pjax article .article-entry>ul>li,.post .pjax article>ol>li, .post .pjax article>ul>li{
+        margin-bottom: auto;
+        margin-left: auto;
+    }
+    .post .pjax article .article-entry li>ol>li, .post .pjax article .article-entry li>ul>li,.post .pjax article li>ol>li, .post .pjax article li>ul>li{
+        margin-bottom: auto;
+        margin-left: auto;
+    }
+    
+
+    /* 背景图样式 */
+    
+    
+
+
+    /*引用块样式*/
+    
+
+    /*文章列表背景图*/
+    
+    .nav-right:before {
+        content: ' ';
+        display: block;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.3;
+        background: url("https://i.loli.net/2019/07/22/5d3521411f3f169375.png");
+        background-repeat: no-repeat;
+        background-position: 50% 0;
+        -ms-background-size: cover;
+        -o-background-size: cover;
+        -moz-background-size: cover;
+        -webkit-background-size: cover;
+        background-size: cover;
+    }
+    
+
+    
+</style>
+
+
+
+
+
+
+
+</html>

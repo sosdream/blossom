@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+  <title>linux块设备驱动 | 简</title>
+  <meta name="keywords" content=" linux ">
+  <meta name="description" content="linux块设备驱动 | 简">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="A32和T32间的状态切换当一个处理器在A32状态下时，不能执行T32指令，当一个处理器在T32状态下时，也不能执行A32指令，必须要保证处理器不会收到与当前处理器状态不相容的指令集指令。 处理器的初始化状态依赖于它自身的配置。同时，在汇编代码中，通常应用用如CODE16，CODE32或者THUMB这样类似的关键子标示指令集，如果代码只执行过程中面临两种指令集的切换，则可以用BX或BLX这样的分支">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AArch32">
+<meta property="og:url" content="http://www.micernel.com/2019/09/14/AArch32/index.html">
+<meta property="og:site_name" content="简">
+<meta property="og:description" content="A32和T32间的状态切换当一个处理器在A32状态下时，不能执行T32指令，当一个处理器在T32状态下时，也不能执行A32指令，必须要保证处理器不会收到与当前处理器状态不相容的指令集指令。 处理器的初始化状态依赖于它自身的配置。同时，在汇编代码中，通常应用用如CODE16，CODE32或者THUMB这样类似的关键子标示指令集，如果代码只执行过程中面临两种指令集的切换，则可以用BX或BLX这样的分支">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-09-14T12:43:43.000Z">
+<meta property="article:modified_time" content="2019-09-14T12:43:43.000Z">
+<meta property="article:author" content="红尘追风">
+<meta property="article:tag" content="arm">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="icon" href="/img/avatar.jpg">
+
+<link href="/css/style.css?v=1.0.1" rel="stylesheet">
+
+<link href="/css/hl_theme/atom-light.css?v=1.0.1" rel="stylesheet">
+
+<link href="//cdn.bootcss.com/animate.css/3.5.2/animate.min.css" rel="stylesheet">
+<link href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="/js/jquery.autocomplete.min.js?v=1.0.1" ></script>
+
+<script src="//cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script>
+    hljs.initHighlightingOnLoad();
+</script>
+
+<script src="//cdn.bootcss.com/nprogress/0.2.0/nprogress.min.js"></script>
+
+
+
+<script src="//cdn.bootcss.com/jquery-cookie/1.4.1/jquery.cookie.min.js" ></script>
+
+<script src="/js/iconfont.js?v=1.0.1" ></script>
+
+<meta name="generator" content="Hexo 4.2.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head>
+<div style="display: none">
+  <input class="theme_disqus_on" value="false">
+  <input class="theme_preload_comment" value="false">
+  <input class="theme_blog_path" value="">
+</div>
+
+<body>
+<!-- hexo-inject:begin --><!-- hexo-inject:end --><aside class="nav">
+    <div class="nav-left">
+        <a href="/" class="avatar_target">
+    <img class="avatar" src="/img/avatar.jpg" />
+</a>
+<div class="author">
+    <span>红尘追风</span>
+</div>
+
+<div class="icon">
+    
+        
+        <a title="rss" href="/atom.xml" target="_blank">
+            
+                <svg class="iconfont-svg" aria-hidden="true">
+                    <use xlink:href="#icon-rss"></use>
+                </svg>
+            
+        </a>
+        
+    
+        
+        <a title="github" href="https://github.com/sosdream" target="_blank">
+            
+                <svg class="iconfont-svg" aria-hidden="true">
+                    <use xlink:href="#icon-github"></use>
+                </svg>
+            
+        </a>
+        
+    
+        
+    
+        
+        <a title="email" href="mailto:1137924614@qq.com" target="_blank">
+            
+                <svg class="iconfont-svg" aria-hidden="true">
+                    <use xlink:href="#icon-email"></use>
+                </svg>
+            
+        </a>
+        
+    
+        
+        <a title="qq" href="http://wpa.qq.com/msgrd?v=3&uin=1137924614&site=qq&menu=yes" target="_blank">
+            
+                <svg class="iconfont-svg" aria-hidden="true">
+                    <use xlink:href="#icon-qq"></use>
+                </svg>
+            
+        </a>
+        
+    
+        
+        <a title="kugou" href="https://www.kugou.com/" target="_blank">
+            
+                <svg class="iconfont-svg" aria-hidden="true">
+                    <use xlink:href="#icon-kugou"></use>
+                </svg>
+            
+        </a>
+        
+    
+</div>
+
+
+
+
+<ul>
+    <li><div class="all active">全部文章<small>(74)</small></div></li>
+    
+        
+            
+            <li><div data-rel="System">System<small>(29)</small></div>
+                
+            </li>
+            
+        
+    
+        
+            
+            <li><div data-rel="协议">协议<small>(6)</small></div>
+                
+            </li>
+            
+        
+    
+        
+            
+            <li><div data-rel="嵌入式">嵌入式<small>(16)</small></div>
+                
+            </li>
+            
+        
+    
+        
+            
+            <li><div data-rel="算法">算法<small>(9)</small></div>
+                
+            </li>
+            
+        
+    
+        
+            
+            <li><div data-rel="编程与经验">编程与经验<small>(11)</small></div>
+                
+            </li>
+            
+        
+    
+        
+            
+            <li><div data-rel="杂类">杂类<small>(3)</small></div>
+                
+            </li>
+            
+        
+    
+</ul>
+<div class="left-bottom">
+    <div class="menus">
+    
+    
+    
+    </div>
+    <div><a class="about  hasFriend  site_url"  href="/about">关于</a><a style="width: 50%"  class="friends">友链</a></div>
+</div>
+<input type="hidden" id="yelog_site_posts_number" value="74">
+
+<div style="display: none">
+    <span id="busuanzi_value_site_uv"></span>
+    <span id="busuanzi_value_site_pv"></span>
+</div>
+
+    </div>
+    <div class="nav-right">
+        <div class="friends-area">
+    <div class="friends-title">
+        友情链接
+        <i class="back-title-list"></i>
+    </div>
+    <div class="friends-content">
+        <ul>
+            
+        </ul>
+    </div>
+</div>
+        <div class="title-list">
+    <form onkeydown="if(event.keyCode==13){return false;}">
+        <input class="search" type="text" placeholder="Search..." autocomplete="off"id="local-search-input" >
+        <i class="cross"></i>
+        <span>
+            <label for="tagswitch">Tags:</label>
+            <input id="tagswitch" type="checkbox" style="display: none" />
+            <i id="tagsWitchIcon"></i>
+        </span>
+    </form>
+    <div class="tags-list">
+    
+    <li class="article-tag-list-item">
+        <a class="color4">linux,驱动</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color1">whois</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color5">qcom</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color5">开发环境</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color5">编译工具</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color5">ucos</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color2">real-time system</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color1">array</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color5">wireshark</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color1">linux,udev</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color2">ymodem</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color4">单片机</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color3">烧写</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color4">markdown</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color3">公式</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color3">串口</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color3">目录</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color4">进程间通信，管道</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color2">c</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color5">linux, 驱动</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color4">二叉树</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color3">排序</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color5">网络编程</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color1">linux</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color4">arm</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color4">usb</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color5">PMIC</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color4">c++</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color1">stm32</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color1">uboot</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color4">重定位</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color2">rootfs</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color1">strip</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color5">wifi</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color4">iot</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color4">makefile</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a class="color5">rtos</a>
+    </li>
+    
+    <div class="clearfix"></div>
+</div>
+
+    
+    <nav id="title-list-nav">
+        
+        <a  class="算法 "
+           href="/2015/01/10/BinarySearchTreeIterator/"
+           data-tag="二叉树"
+           data-author="" >
+            <span class="post-title" title="Binary Search Tree Iterator(中序遍历)">Binary Search Tree Iterator(中序遍历)</span>
+            <span class="post-date" title="2015-01-10 10:26:46">2015/01/10</span>
+        </a>
+        
+        <a  class="算法 "
+           href="/2015/02/01/Course_Schedule/"
+           data-tag="排序"
+           data-author="" >
+            <span class="post-title" title="Course Schedule">Course Schedule</span>
+            <span class="post-date" title="2015-02-01 13:01:46">2015/02/01</span>
+        </a>
+        
+        <a  class="编程与经验 "
+           href="/2015/02/15/C++%E8%BF%90%E7%AE%97%E7%AC%A6%E7%9A%84%E4%BC%98%E5%85%88%E7%BA%A7/"
+           data-tag="c++"
+           data-author="" >
+            <span class="post-title" title="C++运算符的优先级">C++运算符的优先级</span>
+            <span class="post-date" title="2015-02-15 14:55:12">2015/02/15</span>
+        </a>
+        
+        <a  class="算法 "
+           href="/2015/03/09/game_of_life/"
+           data-tag="array"
+           data-author="" >
+            <span class="post-title" title="game of life">game of life</span>
+            <span class="post-date" title="2015-03-09 23:44:46">2015/03/09</span>
+        </a>
+        
+        <a  class="算法 "
+           href="/2015/04/18/InsertInterval/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Insert Interval">Insert Interval</span>
+            <span class="post-date" title="2015-04-18 11:06:12">2015/04/18</span>
+        </a>
+        
+        <a  class="算法 "
+           href="/2015/05/01/restore_ip_address/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="restore ip address">restore ip address</span>
+            <span class="post-date" title="2015-05-01 18:13:46">2015/05/01</span>
+        </a>
+        
+        <a  class="算法 "
+           href="/2015/07/26/%E5%90%88%E5%B9%B6%E6%9C%89%E5%BA%8F%E9%93%BE%E8%A1%A8/"
+           data-tag="排序"
+           data-author="" >
+            <span class="post-title" title="合并有序链表">合并有序链表</span>
+            <span class="post-date" title="2015-07-26 19:24:46">2015/07/26</span>
+        </a>
+        
+        <a  class="算法 "
+           href="/2015/08/12/%E7%BB%9F%E8%AE%A1%E6%B5%B7%E6%98%8E%E8%B7%9D%E7%A6%BB/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="统计海明距离">统计海明距离</span>
+            <span class="post-date" title="2015-08-12 14:51:46">2015/08/12</span>
+        </a>
+        
+        <a  class="算法 "
+           href="/2015/08/22/%E7%BA%A6%E7%91%9F%E5%A4%AB%E9%97%AE%E9%A2%98/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="约瑟夫问题">约瑟夫问题</span>
+            <span class="post-date" title="2015-08-22 14:34:21">2015/08/22</span>
+        </a>
+        
+        <a  class="System "
+           href="/2015/09/10/Linux%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%8F%8A%E8%AE%BE%E5%A4%87%E6%96%87%E4%BB%B6/"
+           data-tag="linux,驱动"
+           data-author="" >
+            <span class="post-title" title="Linux的文件系统与设备文件">Linux的文件系统与设备文件</span>
+            <span class="post-date" title="2015-09-10 10:26:46">2015/09/10</span>
+        </a>
+        
+        <a  class="算法 "
+           href="/2015/09/12/%E9%93%BE%E8%A1%A8%E8%A1%A8%E7%A4%BA%E6%95%B0%E7%9A%84%E8%BF%90%E7%AE%97/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="链表表示数的运算">链表表示数的运算</span>
+            <span class="post-date" title="2015-09-12 15:16:50">2015/09/12</span>
+        </a>
+        
+        <a  class="System "
+           href="/2015/11/14/%E7%AE%A1%E9%81%93%E4%B8%8E%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/"
+           data-tag="进程间通信，管道"
+           data-author="" >
+            <span class="post-title" title="管道与消息队列">管道与消息队列</span>
+            <span class="post-date" title="2015-11-14 15:15:46">2015/11/14</span>
+        </a>
+        
+        <a  class="嵌入式 "
+           href="/2016/02/15/armlinuxwifi%E6%94%AF%E6%8C%81/"
+           data-tag="wifi"
+           data-author="" >
+            <span class="post-title" title="arm linux wifi支持">arm linux wifi支持</span>
+            <span class="post-date" title="2016-02-15 09:26:46">2016/02/15</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/04/14/Linux%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/"
+           data-tag="linux"
+           data-author="" >
+            <span class="post-title" title="Linux内存管理">Linux内存管理</span>
+            <span class="post-date" title="2016-04-14 17:26:46">2016/04/14</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/04/25/linux%E4%B8%AD%E7%9A%84%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6(1)/"
+           data-tag="linux,驱动"
+           data-author="" >
+            <span class="post-title" title="linux中的并发控制(1)">linux中的并发控制(1)</span>
+            <span class="post-date" title="2016-04-25 12:02:01">2016/04/25</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/04/28/linux%E4%B8%AD%E7%9A%84%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6(2)/"
+           data-tag="linux,驱动"
+           data-author="" >
+            <span class="post-title" title="linux中的并发控制(2)">linux中的并发控制(2)</span>
+            <span class="post-date" title="2016-04-28 23:01:06">2016/04/28</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/05/07/linux%E5%AD%97%E7%AC%A6%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/"
+           data-tag="linux,驱动"
+           data-author="" >
+            <span class="post-title" title="linux字符设备驱动">linux字符设备驱动</span>
+            <span class="post-date" title="2016-05-07 17:53:18">2016/05/07</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/05/19/linux%E5%9D%97%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/"
+           data-tag="linux"
+           data-author="" >
+            <span class="post-title" title="linux块设备驱动">linux块设备驱动</span>
+            <span class="post-date" title="2016-05-19 21:30:04">2016/05/19</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/05/26/Linux%E5%AE%9A%E6%97%B6%E5%99%A8/"
+           data-tag="ucos"
+           data-author="" >
+            <span class="post-title" title="Linux定时器">Linux定时器</span>
+            <span class="post-date" title="2016-05-26 20:19:43">2016/05/26</span>
+        </a>
+        
+        <a  class="嵌入式 "
+           href="/2016/06/08/uboot-%E7%9A%84start.S%E8%AF%A6%E7%BB%86%E6%B3%A8%E8%A7%A3%E5%8F%8A%E5%88%86%E6%9E%90/"
+           data-tag="uboot"
+           data-author="" >
+            <span class="post-title" title="uboot-的start.S详细注解及分析">uboot-的start.S详细注解及分析</span>
+            <span class="post-date" title="2016-06-08 16:23:46">2016/06/08</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/06/16/linux%E7%9A%84%E4%B8%AD%E6%96%AD/"
+           data-tag="linux, 驱动"
+           data-author="" >
+            <span class="post-title" title="linux的中断">linux的中断</span>
+            <span class="post-date" title="2016-06-16 22:20:46">2016/06/16</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/06/23/linux%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E7%9A%84I_O/"
+           data-tag="linux,驱动"
+           data-author="" >
+            <span class="post-title" title="linux设备驱动中的I/O">linux设备驱动中的I/O</span>
+            <span class="post-date" title="2016-06-23 18:55:30">2016/06/23</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/07/03/linux%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E7%9A%84%E5%BC%82%E6%AD%A5%E9%80%9A%E7%9F%A5%E5%92%8C%E5%BC%82%E6%AD%A5I_O/"
+           data-tag="linux,驱动"
+           data-author="" >
+            <span class="post-title" title="linux设备驱动的异步通知和异步I/O">linux设备驱动的异步通知和异步I/O</span>
+            <span class="post-date" title="2016-07-03 18:32:53">2016/07/03</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/07/13/LinuxI2C/"
+           data-tag="linux"
+           data-author="" >
+            <span class="post-title" title="LinuxI2C">LinuxI2C</span>
+            <span class="post-date" title="2016-07-13 19:51:17">2016/07/13</span>
+        </a>
+        
+        <a  class="嵌入式 "
+           href="/2016/07/15/uboot%E4%BB%A3%E7%A0%81%E5%88%9D%E5%A7%8B%E5%8C%96%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F/"
+           data-tag="uboot"
+           data-author="" >
+            <span class="post-title" title="uboot代码初始化执行顺序">uboot代码初始化执行顺序</span>
+            <span class="post-date" title="2016-07-15 00:31:46">2016/07/15</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/07/20/linuxSPI%E4%B8%BB%E6%9C%BA%E4%B8%8E%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/"
+           data-tag="linux"
+           data-author="" >
+            <span class="post-title" title="linuxSPI主机与设备驱动">linuxSPI主机与设备驱动</span>
+            <span class="post-date" title="2016-07-20 16:44:42">2016/07/20</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/08/11/LinuxUSB/"
+           data-tag="usb"
+           data-author="" >
+            <span class="post-title" title="LinuxUSB">LinuxUSB</span>
+            <span class="post-date" title="2016-08-11 10:26:46">2016/08/11</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/08/20/linuxInput%E5%AD%90%E7%B3%BB%E7%BB%9F/"
+           data-tag="linux"
+           data-author="" >
+            <span class="post-title" title="linuxInput子系统">linuxInput子系统</span>
+            <span class="post-date" title="2016-08-20 15:34:32">2016/08/20</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/08/28/linuxDMA%E7%BC%96%E7%A8%8B/"
+           data-tag="linux"
+           data-author="" >
+            <span class="post-title" title="linuxDMA编程">linuxDMA编程</span>
+            <span class="post-date" title="2016-08-28 01:32:43">2016/08/28</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/09/01/Linux%E7%BD%91%E7%BB%9C%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/"
+           data-tag="linux"
+           data-author="" >
+            <span class="post-title" title="Linux网络设备驱动">Linux网络设备驱动</span>
+            <span class="post-date" title="2016-09-01 15:12:43">2016/09/01</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/09/10/linuxRTC_Framebuffer_TTY_MISC/"
+           data-tag="linux"
+           data-author="" >
+            <span class="post-title" title="linuxRTC\_Framebuffer\_TTY\_MISC">linuxRTC\_Framebuffer\_TTY\_MISC</span>
+            <span class="post-date" title="2016-09-10 22:42:20">2016/09/10</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/09/11/%E8%AE%BE%E5%A4%87IO%E7%AB%AF%E5%8F%A3%E5%8F%8A%E5%86%85%E5%AD%98/"
+           data-tag="linux"
+           data-author="" >
+            <span class="post-title" title="设备I/O端口及内存">设备I/O端口及内存</span>
+            <span class="post-date" title="2016-09-11 22:59:09">2016/09/11</span>
+        </a>
+        
+        <a  class="协议 "
+           href="/2016/09/17/YMODEM%E5%8D%8F%E8%AE%AE/"
+           data-tag="ymodem"
+           data-author="" >
+            <span class="post-title" title="YMODEM协议">YMODEM协议</span>
+            <span class="post-date" title="2016-09-17 20:45:46">2016/09/17</span>
+        </a>
+        
+        <a  class="编程与经验 "
+           href="/2016/09/24/STL%E5%AE%B9%E5%99%A8/"
+           data-tag="c++"
+           data-author="" >
+            <span class="post-title" title="STL容器">STL容器</span>
+            <span class="post-date" title="2016-09-24 20:14:46">2016/09/24</span>
+        </a>
+        
+        <a  class="编程与经验 "
+           href="/2016/10/04/STL%E7%AE%97%E6%B3%95/"
+           data-tag="c++"
+           data-author="" >
+            <span class="post-title" title="STL算法">STL算法</span>
+            <span class="post-date" title="2016-10-04 11:12:43">2016/10/04</span>
+        </a>
+        
+        <a  class="编程与经验 "
+           href="/2016/10/05/STLvector/"
+           data-tag="c++"
+           data-author="" >
+            <span class="post-title" title="STLvector">STLvector</span>
+            <span class="post-date" title="2016-10-05 14:32:12">2016/10/05</span>
+        </a>
+        
+        <a  class="编程与经验 "
+           href="/2016/10/06/STLlist/"
+           data-tag="c++"
+           data-author="" >
+            <span class="post-title" title="STL\_list">STL\_list</span>
+            <span class="post-date" title="2016-10-06 13:56:18">2016/10/06</span>
+        </a>
+        
+        <a  class="编程与经验 "
+           href="/2016/10/14/STL%E8%BF%AD%E4%BB%A3%E5%99%A8/"
+           data-tag="c++"
+           data-author="" >
+            <span class="post-title" title="STL迭代器">STL迭代器</span>
+            <span class="post-date" title="2016-10-14 21:15:46">2016/10/14</span>
+        </a>
+        
+        <a  class="System "
+           href="/2016/10/23/OTA_Package_Create/"
+           data-tag="qcom"
+           data-author="" >
+            <span class="post-title" title="OTA升级包制作">OTA升级包制作</span>
+            <span class="post-date" title="2016-10-23 19:53:38">2016/10/23</span>
+        </a>
+        
+        <a  class="杂类 "
+           href="/2016/11/04/MarkDown%E4%B9%A6%E5%86%99%E8%A7%84%E5%88%99/"
+           data-tag="markdown,公式"
+           data-author="" >
+            <span class="post-title" title="MarkDown中公式书写">MarkDown中公式书写</span>
+            <span class="post-date" title="2016-11-04 18:44:43">2016/11/04</span>
+        </a>
+        
+        <a  class="杂类 "
+           href="/2016/11/19/MakefileConventions/"
+           data-tag="makefile"
+           data-author="" >
+            <span class="post-title" title="Makefile Conventions">Makefile Conventions</span>
+            <span class="post-date" title="2016-11-19 23:32:46">2016/11/19</span>
+        </a>
+        
+        <a  class="嵌入式 "
+           href="/2016/12/03/Linux%E7%9A%84%E7%A7%BB%E6%A4%8D(1)/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Linux的移植(1)">Linux的移植(1)</span>
+            <span class="post-date" title="2016-12-03 20:31:12">2016/12/03</span>
+        </a>
+        
+        <a  class="嵌入式 "
+           href="/2016/12/16/Linux%E7%9A%84%E7%A7%BB%E6%A4%8D(2)/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Linux的移植(2)">Linux的移植(2)</span>
+            <span class="post-date" title="2016-12-16 20:41:10">2016/12/16</span>
+        </a>
+        
+        <a  class="嵌入式 "
+           href="/2016/12/21/Linux%E7%9A%84%E7%A7%BB%E6%A4%8D(3)/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Linux的移植(3)">Linux的移植(3)</span>
+            <span class="post-date" title="2016-12-21 18:49:28">2016/12/21</span>
+        </a>
+        
+        <a  class="System "
+           href="/2017/01/09/Linux%E7%94%B5%E6%BA%90%E7%AE%A1%E7%90%86(1)/"
+           data-tag="PMIC"
+           data-author="" >
+            <span class="post-title" title="Linux电源管理(1)">Linux电源管理(1)</span>
+            <span class="post-date" title="2017-01-09 18:15:17">2017/01/09</span>
+        </a>
+        
+        <a  class="System "
+           href="/2017/01/17/Linux%E7%94%B5%E6%BA%90%E7%AE%A1%E7%90%86(2)/"
+           data-tag="PMIC"
+           data-author="" >
+            <span class="post-title" title="Linux电源管理(2)">Linux电源管理(2)</span>
+            <span class="post-date" title="2017-01-17 19:21:49">2017/01/17</span>
+        </a>
+        
+        <a  class="System "
+           href="/2017/01/28/Linux%E7%94%B5%E6%BA%90%E7%AE%A1%E7%90%86(3)/"
+           data-tag="PMIC"
+           data-author="" >
+            <span class="post-title" title="Linux电源管理(3)">Linux电源管理(3)</span>
+            <span class="post-date" title="2017-01-28 18:51:30">2017/01/28</span>
+        </a>
+        
+        <a  class="System "
+           href="/2017/03/15/udev/"
+           data-tag="linux,udev"
+           data-author="" >
+            <span class="post-title" title="UDEV">UDEV</span>
+            <span class="post-date" title="2017-03-15 21:41:03">2017/03/15</span>
+        </a>
+        
+        <a  class="编程与经验 "
+           href="/2017/03/19/wpa_supplicant%E6%95%85%E9%9A%9C%E4%B8%8E%E8%B0%83%E8%AF%95/"
+           data-tag="wifi"
+           data-author="" >
+            <span class="post-title" title="wpa\_supplicant故障与调试">wpa\_supplicant故障与调试</span>
+            <span class="post-date" title="2017-03-19 21:32:17">2017/03/19</span>
+        </a>
+        
+        <a  class="协议 "
+           href="/2017/04/06/%E4%B8%B2%E5%8F%A3%E5%8F%8A%E5%85%B6%E4%BD%BF%E7%94%A8/"
+           data-tag="串口"
+           data-author="" >
+            <span class="post-title" title="串口及其使用">串口及其使用</span>
+            <span class="post-date" title="2017-04-06 22:07:15">2017/04/06</span>
+        </a>
+        
+        <a  class="System "
+           href="/2017/05/04/linux%E6%A0%B9%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E6%8C%82%E8%BD%BD%E8%BF%87%E7%A8%8B/"
+           data-tag="rootfs"
+           data-author="" >
+            <span class="post-title" title="linux根文件系统的挂载过程">linux根文件系统的挂载过程</span>
+            <span class="post-date" title="2017-05-04 15:43:32">2017/05/04</span>
+        </a>
+        
+        <a  class="编程与经验 "
+           href="/2017/05/20/C10k%E9%97%AE%E9%A2%98%E5%8F%8A%E7%BD%91%E7%BB%9C%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1/"
+           data-tag="网络编程"
+           data-author="" >
+            <span class="post-title" title="C10k问题及网络程序设计">C10k问题及网络程序设计</span>
+            <span class="post-date" title="2017-05-20 18:33:54">2017/05/20</span>
+        </a>
+        
+        <a  class="协议 "
+           href="/2017/09/12/Wireshark%E5%88%9D%E6%8E%A2/"
+           data-tag="wireshark"
+           data-author="" >
+            <span class="post-title" title="Wireshark初探">Wireshark初探</span>
+            <span class="post-date" title="2017-09-12 22:14:46">2017/09/12</span>
+        </a>
+        
+        <a  class="协议 "
+           href="/2017/09/22/Wireshark%E4%BB%8E%E6%95%B0%E6%8D%AE%E8%AF%BB%E5%85%A5%E5%88%B0%E5%8D%8F%E8%AE%AE%E5%A4%84%E7%90%86/"
+           data-tag="wireshark"
+           data-author="" >
+            <span class="post-title" title="Wireshark从数据读入到协议处理">Wireshark从数据读入到协议处理</span>
+            <span class="post-date" title="2017-09-22 15:38:46">2017/09/22</span>
+        </a>
+        
+        <a  class="编程与经验 "
+           href="/2017/12/27/CPU%E5%8D%A0%E7%94%A8%E7%8E%87%E9%AB%98%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="CPU占用率高问题分析">CPU占用率高问题分析</span>
+            <span class="post-date" title="2017-12-27 22:53:23">2017/12/27</span>
+        </a>
+        
+        <a  class="System "
+           href="/2018/01/10/%E4%BB%BB%E5%8A%A1%E6%8E%A7%E5%88%B6%E5%9D%97%E5%8F%8A%E5%85%B6%E5%88%9D%E5%A7%8B%E5%8C%96/"
+           data-tag="ucos"
+           data-author="" >
+            <span class="post-title" title="UCOS的任务管理">UCOS的任务管理</span>
+            <span class="post-date" title="2018-01-10 10:26:46">2018/01/10</span>
+        </a>
+        
+        <a  class="杂类 "
+           href="/2018/01/10/%E8%B5%84%E6%BA%90%E7%9B%AE%E5%BD%95/"
+           data-tag="目录"
+           data-author="" >
+            <span class="post-title" title="资源目录">资源目录</span>
+            <span class="post-date" title="2018-01-10 10:26:46">2018/01/10</span>
+        </a>
+        
+        <a  class="编程与经验 "
+           href="/2018/01/15/%E5%85%B3%E4%BA%8E%E7%A9%BA%E6%8C%87%E9%92%88%E9%97%AE%E9%A2%98%E6%8E%A2%E7%A9%B6/"
+           data-tag="c"
+           data-author="" >
+            <span class="post-title" title="关于空指针问题探究">关于空指针问题探究</span>
+            <span class="post-date" title="2018-01-15 12:15:53">2018/01/15</span>
+        </a>
+        
+        <a  class="System "
+           href="/2018/02/04/UCOS%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/"
+           data-tag="ucos,real-time system"
+           data-author="" >
+            <span class="post-title" title="UCOS中的一些概念(1)">UCOS中的一些概念(1)</span>
+            <span class="post-date" title="2018-02-04 08:44:23">2018/02/04</span>
+        </a>
+        
+        <a  class="System "
+           href="/2018/02/04/UCOS%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B52/"
+           data-tag="ucos,real-time system"
+           data-author="" >
+            <span class="post-title" title="UCOS中的一些概念(2)">UCOS中的一些概念(2)</span>
+            <span class="post-date" title="2018-02-04 08:44:23">2018/02/04</span>
+        </a>
+        
+        <a  class="协议 "
+           href="/2018/02/05/IP%E6%9F%A5%E8%AF%A2%E5%8E%9F%E7%90%86/"
+           data-tag="whois"
+           data-author="" >
+            <span class="post-title" title="IP查询原理">IP查询原理</span>
+            <span class="post-date" title="2018-02-05 19:43:46">2018/02/05</span>
+        </a>
+        
+        <a  class="嵌入式 "
+           href="/2019/01/18/%E4%BB%A3%E7%A0%81%E9%87%8D%E5%AE%9A%E4%BD%8D%E4%B8%8Euboot/"
+           data-tag="重定位"
+           data-author="" >
+            <span class="post-title" title="代码重定位与uboot">代码重定位与uboot</span>
+            <span class="post-date" title="2019-01-18 17:02:41">2019/01/18</span>
+        </a>
+        
+        <a  class="编程与经验 "
+           href="/2019/02/13/%E5%85%B3%E4%BA%8Eswitch%E7%9A%84%E8%AE%A8%E8%AE%BA/"
+           data-tag="c"
+           data-author="" >
+            <span class="post-title" title="关于switch的讨论">关于switch的讨论</span>
+            <span class="post-date" title="2019-02-13 22:49:46">2019/02/13</span>
+        </a>
+        
+        <a  class="嵌入式 "
+           href="/2019/03/04/Linux:Mac%E4%B8%8A%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/"
+           data-tag="开发环境,编译工具"
+           data-author="" >
+            <span class="post-title" title="Linux/Mac嵌入式开发环境的搭建">Linux/Mac嵌入式开发环境的搭建</span>
+            <span class="post-date" title="2019-03-04 08:44:23">2019/03/04</span>
+        </a>
+        
+        <a  class="嵌入式 "
+           href="/2019/03/10/%E5%85%B3%E4%BA%8ECMSIS/"
+           data-tag="arm"
+           data-author="" >
+            <span class="post-title" title="关于CMSIS">关于CMSIS</span>
+            <span class="post-date" title="2019-03-10 21:31:46">2019/03/10</span>
+        </a>
+        
+        <a  class="嵌入式 "
+           href="/2019/03/13/%E5%8D%95%E7%89%87%E6%9C%BA%E7%9A%84%E7%83%A7%E5%86%99/"
+           data-tag="单片机,烧写"
+           data-author="" >
+            <span class="post-title" title="单片机的烧写方式">单片机的烧写方式</span>
+            <span class="post-date" title="2019-03-13 10:53:23">2019/03/13</span>
+        </a>
+        
+        <a  class="System "
+           href="/2019/04/10/FreeRTOS%E9%93%BE%E8%A1%A8%E4%B8%8E%E9%80%9A%E4%BF%A1%E6%9C%BA%E5%88%B6/"
+           data-tag="rtos"
+           data-author="" >
+            <span class="post-title" title="FreeRTOS链表与通信机制">FreeRTOS链表与通信机制</span>
+            <span class="post-date" title="2019-04-10 10:23:46">2019/04/10</span>
+        </a>
+        
+        <a  class="嵌入式 "
+           href="/2019/04/17/%E5%85%B3%E4%BA%8EArm%E6%9E%B6%E6%9E%84/"
+           data-tag="arm"
+           data-author="" >
+            <span class="post-title" title="关于Arm架构">关于Arm架构</span>
+            <span class="post-date" title="2019-04-17 15:36:43">2019/04/17</span>
+        </a>
+        
+        <a  class="嵌入式 "
+           href="/2019/05/01/%E5%9F%BA%E4%BA%8EHAL%E5%BA%93%E7%9A%84GPIO%E9%85%8D%E7%BD%AE/"
+           data-tag="stm32"
+           data-author="" >
+            <span class="post-title" title="基于HAL库的GPIO配置">基于HAL库的GPIO配置</span>
+            <span class="post-date" title="2019-05-01 12:05:21">2019/05/01</span>
+        </a>
+        
+        <a  class="嵌入式 "
+           href="/2019/05/15/%E5%9F%BA%E4%BA%8EHAL%E5%BA%93%E7%9A%84USART%E4%B8%B2%E5%8F%A3%E9%80%9A%E4%BF%A1%E9%85%8D%E7%BD%AE/"
+           data-tag="stm32"
+           data-author="" >
+            <span class="post-title" title="基于HAL库的USART串口通信配置">基于HAL库的USART串口通信配置</span>
+            <span class="post-date" title="2019-05-15 22:41:32">2019/05/15</span>
+        </a>
+        
+        <a  class="嵌入式 "
+           href="/2019/06/03/%E5%A6%82%E4%BD%95%E5%AF%B9%E5%BA%93%E5%92%8C%E5%8F%AF%E6%89%A7%E8%A1%8C%E6%96%87%E4%BB%B6%E8%BF%9B%E8%A1%8C%E8%A3%81%E5%87%8F/"
+           data-tag="strip"
+           data-author="" >
+            <span class="post-title" title="如何对库和可执行文件进行裁减">如何对库和可执行文件进行裁减</span>
+            <span class="post-date" title="2019-06-03 15:42:40">2019/06/03</span>
+        </a>
+        
+        <a  class="嵌入式 "
+           href="/2019/06/22/%E5%B8%B8%E8%A7%81%E7%9A%84%E5%8D%81%E5%A4%A7%E7%89%A9%E8%81%94%E7%BD%91%E9%80%9A%E8%AE%AF%E6%8A%80%E6%9C%AF%E4%BC%98%E5%8A%A3%E5%8F%8A%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="常见的十大物联网通讯技术优劣及应用场景">常见的十大物联网通讯技术优劣及应用场景</span>
+            <span class="post-date" title="2019-06-22 11:23:46">2019/06/22</span>
+        </a>
+        
+        <a  class="协议 "
+           href="/2019/06/26/%E7%89%A9%E8%81%94%E7%BD%91%E7%9A%84%E4%B8%83%E5%A4%A7%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/"
+           data-tag="iot"
+           data-author="" >
+            <span class="post-title" title="物联网的七大通信协议">物联网的七大通信协议</span>
+            <span class="post-date" title="2019-06-26 17:33:46">2019/06/26</span>
+        </a>
+        
+        <a  class="嵌入式 "
+           href="/2019/09/14/AArch32/"
+           data-tag="arm"
+           data-author="" >
+            <span class="post-title" title="AArch32">AArch32</span>
+            <span class="post-date" title="2019-09-14 20:43:43">2019/09/14</span>
+        </a>
+        
+    </nav>
+</div>
+    </div>
+    <div class="hide-list">
+        <div class="semicircle">
+            <div class="brackets first"><</div>
+            <div class="brackets">&gt;</div>
+        </div>
+    </div>
+</aside>
+<div class="post">
+    <div class="pjax">
+        <article id="post-linux块设备驱动" class="article article-type-post" itemscope itemprop="blogPost">
+    
+        <h1 class="article-title">linux块设备驱动</h1>
+    
+    <div class="article-meta">
+        
+        
+        
+        <span class="book">
+            
+                <a  data-rel="System">System</a>
+            
+        </span>
+        
+        
+        <span class="tag">
+            
+            <a class="color1">linux</a>
+            
+        </span>
+        
+    </div>
+    <div class="article-meta">
+        
+    </div>
+    <div class="article-meta">
+        
+        
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#块设备子系统架构"><span class="toc-text">块设备子系统架构</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#块设备驱动结构"><span class="toc-text">块设备驱动结构</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#block-device-operations结构体"><span class="toc-text">block_device_operations结构体</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#gendisk结构体"><span class="toc-text">gendisk结构体</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#bio、request和request-queue"><span class="toc-text">bio、request和request_queue</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#块设备驱动的实现"><span class="toc-text">块设备驱动的实现</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#初始化"><span class="toc-text">初始化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#打开与释放"><span class="toc-text">打开与释放</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ioctl函数"><span class="toc-text">ioctl函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#I-O请求处理"><span class="toc-text">I&#x2F;O请求处理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#使用请求队列"><span class="toc-text">使用请求队列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#不使用请求队列"><span class="toc-text">不使用请求队列</span></a></li></ol></li></ol></li></ol>
+    
+<style>
+    .left-col .switch-btn,
+    .left-col .switch-area {
+        display: none;
+    }
+    .toc-level-3 i,
+    .toc-level-3 ol {
+        display: none !important;
+    }
+</style>
+</div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="块设备子系统架构"><a href="#块设备子系统架构" class="headerlink" title="块设备子系统架构"></a>块设备子系统架构</h1><p>在Linux中，我们通常使用磁盘文件系统EXT4、UBIFS等访问磁盘，但是磁盘也有一种原始设备的访问方式，如直接访问/dev/sdb1等，所有的EXT4、UBIFS、原始块设备都工作与VFS之下，在它们之下又包含块I/O调度层以进行排序和合并操作。Linux的块设备子系统如下所示。</p>
+<p><img src="https://sosdream.github.io/pictures/linux/block_subsystem.png" alt="块设备子系统"></p>
+<h1 id="块设备驱动结构"><a href="#块设备驱动结构" class="headerlink" title="块设备驱动结构"></a>块设备驱动结构</h1><h2 id="block-device-operations结构体"><a href="#block-device-operations结构体" class="headerlink" title="block_device_operations结构体"></a>block_device_operations结构体</h2><p>在块设备驱动中，它是对块设备操作的集合，定义如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">struct block_device_operations &#123;</span><br><span class="line">    int (*open) (struct block_device *, fmode_t);</span><br><span class="line">    void (*release) (struct gendisk *, fmode_t);</span><br><span class="line">    int (*rw_page)(struct block_device *, sector_t, struct page *, unsigned int);</span><br><span class="line">    int (*ioctl) (struct block_device *, fmode_t, unsigned, unsigned long);</span><br><span class="line">    int (*compat_ioctl) (struct block_device *, fmode_t, unsigned, unsigned long);</span><br><span class="line">    unsigned int (*check_events) (struct gendisk *disk,</span><br><span class="line">                      unsigned int clearing);</span><br><span class="line">    &#x2F;* -&gt;media_changed() is DEPRECATED, use -&gt;check_events() instead *&#x2F;</span><br><span class="line">    int (*media_changed) (struct gendisk *);</span><br><span class="line">    void (*unlock_native_capacity) (struct gendisk *);</span><br><span class="line">    int (*revalidate_disk) (struct gendisk *);</span><br><span class="line">    int (*getgeo)(struct block_device *, struct hd_geometry *);</span><br><span class="line">    &#x2F;* this callback is with swap_lock and sometimes page table lock held *&#x2F;</span><br><span class="line">    void (*swap_slot_free_notify) (struct block_device *, unsigned long);</span><br><span class="line">    int (*report_zones)(struct gendisk *, sector_t sector,</span><br><span class="line">            unsigned int nr_zones, report_zones_cb cb, void *data);</span><br><span class="line">    struct module *owner;</span><br><span class="line">    const struct pr_ops *pr_ops;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="gendisk结构体"><a href="#gendisk结构体" class="headerlink" title="gendisk结构体"></a>gendisk结构体</h2><p>在内核中，使用gendisk(通用磁盘)结构体来表示一个独立的磁盘设备，这个结构体定义如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">struct gendisk &#123;</span><br><span class="line">    &#x2F;* major, first_minor and minors are input parameters only,</span><br><span class="line">     * don&#39;t use directly.  Use disk_devt() and disk_max_parts().</span><br><span class="line">     *&#x2F;</span><br><span class="line">    int major;          &#x2F;* major number of driver *&#x2F;</span><br><span class="line">    int first_minor;</span><br><span class="line">    int minors;                     &#x2F;* maximum number of minors, &#x3D;1 for</span><br><span class="line">                                         * disks that can&#39;t be partitioned. *&#x2F;</span><br><span class="line"></span><br><span class="line">    char disk_name[DISK_NAME_LEN];  &#x2F;* name of major driver *&#x2F;</span><br><span class="line">    char *(*devnode)(struct gendisk *gd, umode_t *mode);</span><br><span class="line"></span><br><span class="line">    unsigned short events;      &#x2F;* supported events *&#x2F;</span><br><span class="line">    unsigned short event_flags; &#x2F;* flags related to event processing *&#x2F;</span><br><span class="line"></span><br><span class="line">    &#x2F;* Array of pointers to partitions indexed by partno.</span><br><span class="line">     * Protected with matching bdev lock but stat and other</span><br><span class="line">     * non-critical accesses use RCU.  Always access through</span><br><span class="line">     * helpers.</span><br><span class="line">     *&#x2F;</span><br><span class="line">    struct disk_part_tbl __rcu *part_tbl;</span><br><span class="line">    struct hd_struct part0;</span><br><span class="line"></span><br><span class="line">    const struct block_device_operations *fops;</span><br><span class="line">    struct request_queue *queue;</span><br><span class="line">    void *private_data;</span><br><span class="line"></span><br><span class="line">    int flags;</span><br><span class="line">    struct rw_semaphore lookup_sem;</span><br><span class="line">    struct kobject *slave_dir;</span><br><span class="line"></span><br><span class="line">    struct timer_rand_state *random;</span><br><span class="line">    atomic_t sync_io;       &#x2F;* RAID *&#x2F;</span><br><span class="line">    struct disk_events *ev;</span><br><span class="line">#ifdef  CONFIG_BLK_DEV_INTEGRITY</span><br><span class="line">    struct kobject integrity_kobj;</span><br><span class="line">#endif  &#x2F;* CONFIG_BLK_DEV_INTEGRITY *&#x2F;</span><br><span class="line">    int node_id;</span><br><span class="line">    struct badblocks *bb;</span><br><span class="line">    struct lockdep_map lockdep_map;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="bio、request和request-queue"><a href="#bio、request和request-queue" class="headerlink" title="bio、request和request_queue"></a>bio、request和request_queue</h2><p>通常一个bio对应上层传递给块层的I/O请求。每个bio结构体实例及其包含的bvec_iter、bio_vec结构体实例描述了该I/O请求的开始扇区、数据方向、数据放入的页，其定义如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line">struct bio &#123;</span><br><span class="line">    struct bio      *bi_next;   &#x2F;* request queue link *&#x2F;</span><br><span class="line">    struct gendisk      *bi_disk;</span><br><span class="line">    unsigned int        bi_opf;     &#x2F;* bottom bits req flags,</span><br><span class="line">                         * top bits REQ_OP. Use</span><br><span class="line">                         * accessors.</span><br><span class="line">                         *&#x2F;</span><br><span class="line">    unsigned short      bi_flags;   &#x2F;* status, etc and bvec pool number *&#x2F;</span><br><span class="line">    unsigned short      bi_ioprio;</span><br><span class="line">    unsigned short      bi_write_hint;</span><br><span class="line">    blk_status_t        bi_status;</span><br><span class="line">    u8          bi_partno;</span><br><span class="line">    atomic_t        __bi_remaining;</span><br><span class="line"></span><br><span class="line">    struct bvec_iter    bi_iter;</span><br><span class="line"></span><br><span class="line">    bio_end_io_t        *bi_end_io;</span><br><span class="line"></span><br><span class="line">    void            *bi_private;</span><br><span class="line">#ifdef CONFIG_BLK_CGROUP</span><br><span class="line">    &#x2F;*</span><br><span class="line">     * Represents the association of the css and request_queue for the bio.</span><br><span class="line">     * If a bio goes direct to device, it will not have a blkg as it will</span><br><span class="line">     * not have a request_queue associated with it.  The reference is put</span><br><span class="line">     * on release of the bio.</span><br><span class="line">     *&#x2F;</span><br><span class="line">    struct blkcg_gq     *bi_blkg;</span><br><span class="line">    struct bio_issue    bi_issue;</span><br><span class="line">#ifdef CONFIG_BLK_CGROUP_IOCOST</span><br><span class="line">    u64         bi_iocost_cost;</span><br><span class="line">#endif</span><br><span class="line">#endif</span><br><span class="line">    union &#123;</span><br><span class="line">#if defined(CONFIG_BLK_DEV_INTEGRITY)</span><br><span class="line">        struct bio_integrity_payload *bi_integrity; &#x2F;* data integrity *&#x2F;</span><br><span class="line">#endif</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    unsigned short      bi_vcnt;    &#x2F;* how many bio_vec&#39;s *&#x2F;</span><br><span class="line"></span><br><span class="line">    &#x2F;*</span><br><span class="line">     * Everything starting with bi_max_vecs will be preserved by bio_reset()</span><br><span class="line">     *&#x2F;</span><br><span class="line"></span><br><span class="line">    unsigned short      bi_max_vecs;    &#x2F;* max bvl_vecs we can hold *&#x2F;</span><br><span class="line"></span><br><span class="line">    atomic_t        __bi_cnt;   &#x2F;* pin count *&#x2F;</span><br><span class="line"></span><br><span class="line">    struct bio_vec      *bi_io_vec; &#x2F;* the actual vec list *&#x2F;</span><br><span class="line"></span><br><span class="line">    struct bio_set      *bi_pool;</span><br><span class="line"></span><br><span class="line">    &#x2F;*</span><br><span class="line">     * We can inline a number of vecs at the end of the bio, to avoid</span><br><span class="line">     * double allocations for a small number of bio_vecs. This member</span><br><span class="line">     * MUST obviously be kept at the very end of the bio.</span><br><span class="line">     *&#x2F;</span><br><span class="line">    struct bio_vec      bi_inline_vecs[0];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>与bio对应的数据每次存放的内存不一定是连续的，bio_vec结构体就是用来描述与这个bio请求对应的所有的内存，它可能不总是一个页面里面，因此需要一个向量。在向量中，每个元素实际是一个[page,offset,len],一般称为一个片段。</p>
+<p>I/O调度算法可将连续的bio合并成一个请求。请求是bio经由I/O调度进行调整后的结果，这是请求和bio的区别。因此，一个request可以包含多个bio。当bio被提交给I/O调度器是，I/O调度器可能会将这个bio插入现存的请求中，也可能生成新的请求。</p>
+<p>每个块设备或则块设备的分区都对应又自身的request_queue,从I/O调度器合并和排序出来的请求会被分发到设备级的request_queue。其中请求队列、request、bio和bio_vec之间的关系如下图所示。</p>
+<p><img src="https://sosdream.github.io/pictures/linux/blk_relation.png" alt="请求与bio的关系"></p>
+<p>关于request_queue的相关操作接口定义在linux/blkdev.h中。</p>
+<h1 id="块设备驱动的实现"><a href="#块设备驱动的实现" class="headerlink" title="块设备驱动的实现"></a>块设备驱动的实现</h1><h2 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h2><p>在块设备的注册和初始化阶段，块设备驱动首先需要将它们自己注册到内核，其相关的接口如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">extern int register_blkdev(unsigned int, const char *);</span><br><span class="line">extern void unregister_blkdev(unsigned int, const char *);</span><br></pre></td></tr></table></figure>
+
+<p>除此之外，在块设备驱动初始化过程中，通常需要完成分配、初始化请求队列，绑定请求队列和请求处理函数的工作，并且可能会分配、初始化gendisk.</p>
+<h2 id="打开与释放"><a href="#打开与释放" class="headerlink" title="打开与释放"></a>打开与释放</h2><p>块设备驱动的open()函数和其字符设备驱动的对等体不太相似，前者不以相关的inode和file结构体指针作为参数。在open()中，我们可以通过block_device参数bdev获取private_data；在release()中，则通过gendisk参数disk获取。如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">static int xxx_open(struct block_device *bdev, fmode_t mode)</span><br><span class="line">&#123;</span><br><span class="line">    struct xxx_dev *xxx_dev &#x3D; bdev-&gt;bd_disk-&gt;private_data;</span><br><span class="line">    ...</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">static void xxx_release(struct gendisk *disk, fmode_t mode)</span><br><span class="line">&#123;</span><br><span class="line">    struct xxx_device *dev &#x3D; disk-&gt;private_data;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="ioctl函数"><a href="#ioctl函数" class="headerlink" title="ioctl函数"></a>ioctl函数</h2><p>与字符设备驱动一样，块设备可以包含一个ioctl()函数以提供对设备的I/O控制能力。实际上，高层的块设备层代码处理了绝大多数I/O控制，如BLKFLUSBUF、BLKROSET、BLKDSCARD等。因此，在具体的块设备驱动中通常只需要实现与设备相关的特定ioctl命令。</p>
+<h2 id="I-O请求处理"><a href="#I-O请求处理" class="headerlink" title="I/O请求处理"></a>I/O请求处理</h2><h3 id="使用请求队列"><a href="#使用请求队列" class="headerlink" title="使用请求队列"></a>使用请求队列</h3><p>示例来源于drivers/memstick/core/ms_block.c,如下展示了块设备驱动请求函数例程：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">static blk_status_t msb_queue_rq(struct blk_mq_hw_ctx *hctx,</span><br><span class="line">                 const struct blk_mq_queue_data *bd)</span><br><span class="line">&#123;</span><br><span class="line">    struct memstick_dev *card &#x3D; hctx-&gt;queue-&gt;queuedata;</span><br><span class="line">    struct msb_data *msb &#x3D; memstick_get_drvdata(card);</span><br><span class="line">    struct request *req &#x3D; bd-&gt;rq;</span><br><span class="line"></span><br><span class="line">    dbg_verbose(&quot;Submit request&quot;);</span><br><span class="line"></span><br><span class="line">    spin_lock_irq(&amp;msb-&gt;q_lock);</span><br><span class="line"></span><br><span class="line">    if (msb-&gt;card_dead) &#123;</span><br><span class="line">        dbg(&quot;Refusing requests on removed card&quot;);</span><br><span class="line"></span><br><span class="line">        WARN_ON(!msb-&gt;io_queue_stopped);</span><br><span class="line"></span><br><span class="line">        spin_unlock_irq(&amp;msb-&gt;q_lock);</span><br><span class="line">        blk_mq_start_request(req);</span><br><span class="line">        return BLK_STS_IOERR;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    if (msb-&gt;req) &#123;</span><br><span class="line">        spin_unlock_irq(&amp;msb-&gt;q_lock);</span><br><span class="line">        return BLK_STS_DEV_RESOURCE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    blk_mq_start_request(req);</span><br><span class="line">    msb-&gt;req &#x3D; req;</span><br><span class="line"></span><br><span class="line">    if (!msb-&gt;io_queue_stopped)</span><br><span class="line">        queue_work(msb-&gt;io_queue, &amp;msb-&gt;io_work);</span><br><span class="line"></span><br><span class="line">    spin_unlock_irq(&amp;msb-&gt;q_lock);</span><br><span class="line">    return BLK_STS_OK;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>正常情况下，通过queue_work启动工作队列之下msb_io_work这个函数，它的原型如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line">static void msb_io_work(struct work_struct *work)</span><br><span class="line">&#123;</span><br><span class="line">    struct msb_data *msb &#x3D; container_of(work, struct msb_data, io_work);</span><br><span class="line">    int page, error, len;</span><br><span class="line">    sector_t lba;</span><br><span class="line">    struct scatterlist *sg &#x3D; msb-&gt;prealloc_sg;</span><br><span class="line">    struct request *req;</span><br><span class="line"></span><br><span class="line">    dbg_verbose(&quot;IO: work started&quot;);</span><br><span class="line"></span><br><span class="line">    while (1) &#123;</span><br><span class="line">        spin_lock_irq(&amp;msb-&gt;q_lock);</span><br><span class="line"></span><br><span class="line">        if (msb-&gt;need_flush_cache) &#123;</span><br><span class="line">            msb-&gt;need_flush_cache &#x3D; false;</span><br><span class="line">            spin_unlock_irq(&amp;msb-&gt;q_lock);</span><br><span class="line">            msb_cache_flush(msb);</span><br><span class="line">            continue;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        req &#x3D; msb-&gt;req;</span><br><span class="line">        if (!req) &#123;</span><br><span class="line">            dbg_verbose(&quot;IO: no more requests exiting&quot;);</span><br><span class="line">            spin_unlock_irq(&amp;msb-&gt;q_lock);</span><br><span class="line">            return;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        spin_unlock_irq(&amp;msb-&gt;q_lock);</span><br><span class="line"></span><br><span class="line">        &#x2F;* process the request *&#x2F;</span><br><span class="line">        dbg_verbose(&quot;IO: processing new request&quot;);</span><br><span class="line">        blk_rq_map_sg(msb-&gt;queue, req, sg);</span><br><span class="line"></span><br><span class="line">        lba &#x3D; blk_rq_pos(req);</span><br><span class="line"></span><br><span class="line">        sector_div(lba, msb-&gt;page_size &#x2F; 512);</span><br><span class="line">        page &#x3D; sector_div(lba, msb-&gt;pages_in_block);</span><br><span class="line"></span><br><span class="line">        if (rq_data_dir(msb-&gt;req) &#x3D;&#x3D; READ)</span><br><span class="line">            error &#x3D; msb_do_read_request(msb, lba, page, sg,</span><br><span class="line">                blk_rq_bytes(req), &amp;len);</span><br><span class="line">        else</span><br><span class="line">            error &#x3D; msb_do_write_request(msb, lba, page, sg,</span><br><span class="line">                blk_rq_bytes(req), &amp;len);</span><br><span class="line"></span><br><span class="line">        if (len &amp;&amp; !blk_update_request(req, BLK_STS_OK, len)) &#123;</span><br><span class="line">            __blk_mq_end_request(req, BLK_STS_OK);</span><br><span class="line">            spin_lock_irq(&amp;msb-&gt;q_lock);</span><br><span class="line">            msb-&gt;req &#x3D; NULL;</span><br><span class="line">            spin_unlock_irq(&amp;msb-&gt;q_lock);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        if (error &amp;&amp; msb-&gt;req) &#123;</span><br><span class="line">            blk_status_t ret &#x3D; errno_to_blk_status(error);</span><br><span class="line"></span><br><span class="line">            dbg_verbose(&quot;IO: ending one sector of the request with error&quot;);</span><br><span class="line">            blk_mq_end_request(req, ret);</span><br><span class="line">            spin_lock_irq(&amp;msb-&gt;q_lock);</span><br><span class="line">            msb-&gt;req &#x3D; NULL;</span><br><span class="line">            spin_unlock_irq(&amp;msb-&gt;q_lock);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        if (msb-&gt;req)</span><br><span class="line">            dbg_verbose(&quot;IO: request still pending&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在读写无错的情况下，调用__blk_mq_end_request(req, BLK_STS_OK)实际上告诉了上层该请求处理完成。如果读写有错，则调用blk_mq_end_request(req, ret)把出错原因作为第2个参数传入上层。</p>
+<p>如上代码中blk_rq_map_sg()实现于block/blk-merge.c中。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line">int blk_rq_map_sg(struct request_queue *q, struct request *rq,</span><br><span class="line">          struct scatterlist *sglist)</span><br><span class="line">&#123;</span><br><span class="line">    struct scatterlist *sg &#x3D; NULL;</span><br><span class="line">    int nsegs &#x3D; 0;</span><br><span class="line"></span><br><span class="line">    if (rq-&gt;rq_flags &amp; RQF_SPECIAL_PAYLOAD)</span><br><span class="line">        nsegs &#x3D; __blk_bvec_map_sg(rq-&gt;special_vec, sglist, &amp;sg);</span><br><span class="line">    else if (rq-&gt;bio &amp;&amp; bio_op(rq-&gt;bio) &#x3D;&#x3D; REQ_OP_WRITE_SAME)</span><br><span class="line">        nsegs &#x3D; __blk_bvec_map_sg(bio_iovec(rq-&gt;bio), sglist, &amp;sg);</span><br><span class="line">    else if (rq-&gt;bio)</span><br><span class="line">        nsegs &#x3D; __blk_bios_map_sg(q, rq-&gt;bio, sglist, &amp;sg);</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">    return nsegs;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">static inline int __blk_bvec_map_sg(struct bio_vec bv,</span><br><span class="line">        struct scatterlist *sglist, struct scatterlist **sg)</span><br><span class="line">&#123;</span><br><span class="line">    *sg &#x3D; blk_next_sg(sg, sglist);</span><br><span class="line">    sg_set_page(*sg, bv.bv_page, bv.bv_len, bv.bv_offset);</span><br><span class="line">    return 1;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">static int __blk_bios_map_sg(struct request_queue *q, struct bio *bio,</span><br><span class="line">                 struct scatterlist *sglist,</span><br><span class="line">                 struct scatterlist **sg)</span><br><span class="line">&#123;</span><br><span class="line">    struct bio_vec uninitialized_var(bvec), bvprv &#x3D; &#123; NULL &#125;;</span><br><span class="line">    struct bvec_iter iter;</span><br><span class="line">    int nsegs &#x3D; 0;</span><br><span class="line">    bool new_bio &#x3D; false;</span><br><span class="line"></span><br><span class="line">    for_each_bio(bio) &#123;</span><br><span class="line">        bio_for_each_bvec(bvec, bio, iter) &#123;</span><br><span class="line">            &#x2F;*</span><br><span class="line">             * Only try to merge bvecs from two bios given we</span><br><span class="line">             * have done bio internal merge when adding pages</span><br><span class="line">             * to bio</span><br><span class="line">             *&#x2F;</span><br><span class="line">            if (new_bio &amp;&amp;</span><br><span class="line">                __blk_segment_map_sg_merge(q, &amp;bvec, &amp;bvprv, sg))</span><br><span class="line">                goto next_bvec;</span><br><span class="line"></span><br><span class="line">            if (bvec.bv_offset + bvec.bv_len &lt;&#x3D; PAGE_SIZE)</span><br><span class="line">                nsegs +&#x3D; __blk_bvec_map_sg(bvec, sglist, sg);</span><br><span class="line">            else</span><br><span class="line">                nsegs +&#x3D; blk_bvec_map_sg(q, &amp;bvec, sglist, sg);</span><br><span class="line"> next_bvec:</span><br><span class="line">            new_bio &#x3D; false;</span><br><span class="line">        &#125;</span><br><span class="line">        if (likely(bio-&gt;bi_iter.bi_size)) &#123;</span><br><span class="line">            bvprv &#x3D; bvec;</span><br><span class="line">            new_bio &#x3D; true;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return nsegs;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>blk_rq_map_sg()由如上实现我们可知其功能是遍历所有的bio，以及所有的片段，将所有于某请求相关的页组成一个scatter/gather的列表。</p>
+<h3 id="不使用请求队列"><a href="#不使用请求队列" class="headerlink" title="不使用请求队列"></a>不使用请求队列</h3><p>使用请求队列对于一个机械磁盘设备而言的确有助于提高系统的性能，但是对于RAMDISK、ZRAM等完全可真正随机访问的设备而言，无法从高级的请求队列逻辑中获益。对于这些设备，块层支持“无队列”模式，为使用这个模式，驱动必须提供一个“制造请求”的函数，而不是一个请求处理函数。对于这类设备的I/O请求实现可参考如下代码（drivers/block/zram/zram_drv.c）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line">static void __zram_make_request(struct zram *zram, struct bio *bio)</span><br><span class="line">&#123;</span><br><span class="line">    int offset;</span><br><span class="line">    u32 index;</span><br><span class="line">    struct bio_vec bvec;</span><br><span class="line">    struct bvec_iter iter;</span><br><span class="line"></span><br><span class="line">    index &#x3D; bio-&gt;bi_iter.bi_sector &gt;&gt; SECTORS_PER_PAGE_SHIFT;</span><br><span class="line">    offset &#x3D; (bio-&gt;bi_iter.bi_sector &amp;</span><br><span class="line">          (SECTORS_PER_PAGE - 1)) &lt;&lt; SECTOR_SHIFT;</span><br><span class="line"></span><br><span class="line">    switch (bio_op(bio)) &#123;</span><br><span class="line">    case REQ_OP_DISCARD:</span><br><span class="line">    case REQ_OP_WRITE_ZEROES:</span><br><span class="line">        zram_bio_discard(zram, index, offset, bio);</span><br><span class="line">        bio_endio(bio);</span><br><span class="line">        return;</span><br><span class="line">    default:</span><br><span class="line">        break;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    bio_for_each_segment(bvec, bio, iter) &#123;</span><br><span class="line">        struct bio_vec bv &#x3D; bvec;</span><br><span class="line">        unsigned int unwritten &#x3D; bvec.bv_len;</span><br><span class="line"></span><br><span class="line">        do &#123;</span><br><span class="line">            bv.bv_len &#x3D; min_t(unsigned int, PAGE_SIZE - offset,</span><br><span class="line">                            unwritten);</span><br><span class="line">            if (zram_bvec_rw(zram, &amp;bv, index, offset,</span><br><span class="line">                     bio_op(bio), bio) &lt; 0)</span><br><span class="line">                goto out;</span><br><span class="line"></span><br><span class="line">            bv.bv_offset +&#x3D; bv.bv_len;</span><br><span class="line">            unwritten -&#x3D; bv.bv_len;</span><br><span class="line"></span><br><span class="line">            update_position(&amp;index, &amp;offset, &amp;bv);</span><br><span class="line">        &#125; while (unwritten);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    bio_endio(bio);</span><br><span class="line">    return;</span><br><span class="line"></span><br><span class="line">out:</span><br><span class="line">    bio_io_error(bio);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;*</span><br><span class="line"> * Handler function for all zram I&#x2F;O requests.</span><br><span class="line"> *&#x2F;</span><br><span class="line">static blk_qc_t zram_make_request(struct request_queue *queue, struct bio *bio)</span><br><span class="line">&#123;</span><br><span class="line">    struct zram *zram &#x3D; queue-&gt;queuedata;</span><br><span class="line"></span><br><span class="line">    if (!valid_io_request(zram, bio-&gt;bi_iter.bi_sector,</span><br><span class="line">                    bio-&gt;bi_iter.bi_size)) &#123;</span><br><span class="line">        atomic64_inc(&amp;zram-&gt;stats.invalid_io);</span><br><span class="line">        goto error;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    __zram_make_request(zram, bio);</span><br><span class="line">    return BLK_QC_T_NONE;</span><br><span class="line"></span><br><span class="line">error:</span><br><span class="line">    bio_io_error(bio);</span><br><span class="line">    return BLK_QC_T_NONE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+      
+       <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以在下面评论区评论，也可以邮件至 yxhlfx@163.com </span>
+    </div>
+</article>
+
+
+
+<div class="article_copyright">
+    <p><span class="copy-title">文章标题:</span>linux块设备驱动</p>
+    
+    <p><span class="copy-title">本文作者:</span><a  title="红尘追风">红尘追风</a></p>
+    <p><span class="copy-title">发布时间:</span>2016-05-19, 21:30:04</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/2016/05/19/linux%E5%9D%97%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/" title="linux块设备驱动">http://www.micernel.com/2016/05/19/linux%E5%9D%97%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/</a>
+    <p>
+        <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+    </p>
+</div>
+
+
+
+
+
+    
+
+
+
+
+    </div>
+    <div class="copyright">
+        <p class="footer-entry">©2016-2019 Honglin</p>
+<p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
+
+    </div>
+    <div class="full-toc">
+        <button class="full"><span class="min "></span></button>
+<button class="post-toc-menu"><span class="post-toc-menu-icons"></span></button>
+<div class="post-toc"><span class="post-toc-title">目录</span>
+    <div class="post-toc-content">
+
+    </div>
+</div>
+<a class="" id="rocket" ></a>
+
+    </div>
+</div>
+<div class="acParent"></div><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</body>
+<script src="/js/jquery.pjax.js?v=1.0.1" ></script>
+
+<script src="/js/script.js?v=1.0.1" ></script>
+<script>
+    var img_resize = 'default';
+    /*作者、标签的自动补全*/
+    $(function () {
+        $('.search').AutoComplete({
+            'data': ['#linux,驱动','#whois','#qcom','#开发环境','#编译工具','#ucos','#real-time system','#array','#wireshark','#linux,udev','#ymodem','#单片机','#烧写','#markdown','#公式','#串口','#目录','#进程间通信，管道','#c','#linux, 驱动','#二叉树','#排序','#网络编程','#linux','#arm','#usb','#PMIC','#c++','#stm32','#uboot','#重定位','#rootfs','#strip','#wifi','#iot','#makefile','#rtos',],
+            'itemHeight': 20,
+            'width': 418
+        }).AutoComplete('show');
+    })
+    function initArticle() {
+        /*渲染对应的表格样式*/
+        
+            $(".post .pjax table").addClass("green_title");
+        
+
+        /*渲染打赏样式*/
+        
+
+        /*高亮代码块行号*/
+        
+        $('pre code').each(function(){
+            var lines = $(this).text().split('\n').length - 1, widther='';
+            if (lines>99) {
+                widther = 'widther'
+            }
+            var $numbering = $('<ul/>').addClass('pre-numbering ' + widther).attr("unselectable","on");
+            $(this).addClass('has-numbering ' + widther)
+                    .parent()
+                    .append($numbering);
+            for(var i=1;i<=lines;i++){
+                $numbering.append($('<li/>').text(i));
+            }
+        });
+        
+
+        /*访问数量*/
+        
+
+        /*代码高亮，行号对齐*/
+        $('.pre-numbering').css('line-height',$('.has-numbering').css('line-height'));
+
+        
+        
+    }
+
+    /*打赏页面隐藏与展示*/
+    
+
+</script>
+
+<!--加入行号的高亮代码块样式-->
+
+<style>
+    pre{
+        position: relative;
+        margin-bottom: 24px;
+        border-radius: 10px;
+        border: 1px solid #e2dede;
+        background: #FFF;
+        overflow: hidden;
+    }
+    code.has-numbering{
+        margin-left: 30px;
+    }
+    code.has-numbering.widther{
+        margin-left: 35px;
+    }
+    .pre-numbering{
+        margin: 0px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 20px;
+        padding: 0.5em 3px 0.7em 5px;
+        border-right: 1px solid #C3CCD0;
+        text-align: right;
+        color: #AAA;
+        background-color: #fafafa;
+    }
+    .pre-numbering.widther {
+        width: 35px;
+    }
+</style>
+
+<!--自定义样式设置-->
+<style>
+    
+    
+    .nav {
+        width: 542px;
+    }
+    .nav.fullscreen {
+        margin-left: -542px;
+    }
+    .nav-left {
+        width: 120px;
+    }
+    
+    
+    @media screen and (max-width: 1468px) {
+        .nav {
+            width: 492px;
+        }
+        .nav.fullscreen {
+            margin-left: -492px;
+        }
+        .nav-left {
+            width: 100px;
+        }
+    }
+    
+    
+    @media screen and (max-width: 1024px) {
+        .nav {
+            width: 492px;
+            margin-left: -492px
+        }
+        .nav.fullscreen {
+            margin-left: 0;
+        }
+        .nav .hide-list.fullscreen {
+            left: 492px
+        }
+    }
+    
+    @media screen and (max-width: 426px) {
+        .nav {
+            width: 100%;
+        }
+        .nav-left {
+            width: 100%;
+        }
+    }
+    
+    
+    .nav-right .title-list nav a .post-title, .nav-right .title-list #local-search-result a .post-title {
+        color: #383636;
+    }
+    
+    
+    .nav-right .title-list nav a .post-date, .nav-right .title-list #local-search-result a .post-date {
+        color: #5e5e5f;
+    }
+    
+    
+    .nav-right nav a.hover, #local-search-result a.hover{
+        background-color: #e2e0e0;
+    }
+    
+    
+
+    /*列表样式*/
+    
+    .post .pjax article .article-entry>ol, .post .pjax article .article-entry>ul, .post .pjax article>ol, .post .pjax article>ul{
+        border: #e2dede solid 1px;
+        border-radius: 10px;
+        padding: 10px 32px 10px 56px;
+    }
+    .post .pjax article .article-entry li>ol, .post .pjax article .article-entry li>ul,.post .pjax article li>ol, .post .pjax article li>ul{
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+    .post .pjax article .article-entry>ol>li, .post .pjax article .article-entry>ul>li,.post .pjax article>ol>li, .post .pjax article>ul>li{
+        margin-bottom: auto;
+        margin-left: auto;
+    }
+    .post .pjax article .article-entry li>ol>li, .post .pjax article .article-entry li>ul>li,.post .pjax article li>ol>li, .post .pjax article li>ul>li{
+        margin-bottom: auto;
+        margin-left: auto;
+    }
+    
+
+    /* 背景图样式 */
+    
+    
+
+
+    /*引用块样式*/
+    
+
+    /*文章列表背景图*/
+    
+    .nav-right:before {
+        content: ' ';
+        display: block;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.3;
+        background: url("https://i.loli.net/2019/07/22/5d3521411f3f169375.png");
+        background-repeat: no-repeat;
+        background-position: 50% 0;
+        -ms-background-size: cover;
+        -o-background-size: cover;
+        -moz-background-size: cover;
+        -webkit-background-size: cover;
+        background-size: cover;
+    }
+    
+
+    
+</style>
+
+
+
+
+
+
+
+</html>
